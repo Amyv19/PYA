@@ -1,0 +1,4 @@
+nombre,modelo,accuracy,precision,recall,f1,roc_auc
+Logistic Regression,logistic_regression,1.0,1.0,1.0,1.0,1.0
+Random Forest,random_forest,1.0,1.0,1.0,1.0,1.0
+Naive Bayes,naive_bayes,1.0,1.0,1.0,1.0,1.0

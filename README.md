@@ -189,3 +189,22 @@ Tu Nombre
 
 MIT
 # PYA
+
+## Frontend
+
+Ejecuta la interfaz local con:
+
+```bash
+streamlit run app.py
+```
+
+El frontend permite escribir texto para clasificarlo y revisar tweets descargados desde `data/twitter_posts.csv`.
+
+## GitHub Pages
+
+Tambien hay una version estatica en `docs/` para publicar con GitHub Pages.
+
+1. En GitHub entra a `Settings > Pages`.
+2. En `Build and deployment`, elige `Deploy from a branch`.
+3. Selecciona la rama `main` y la carpeta `/docs`.
+4. Guarda los cambios y espera la publicacion.
