@@ -11,76 +11,26 @@
 </head>
 <body>
   <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand-card">
-        <p class="eyebrow">PYA · Simulador</p>
-        <h1>Moderación en post y chat</h1>
-        <p class="sidebar-copy">
-          Prueba texto libre como si fuera una publicación y además revisa conversaciones agresivas dentro de un teléfono simulado.
-        </p>
-      </div>
-
-      <div class="status-card">
-        <p class="mini-title">Modo activo</p>
-        <div class="status-row">
-          <span class="status-dot"></span>
-          <strong>Analizador contextual</strong>
-        </div>
-        <p class="status-copy">Responde distinto si detecta insulto, agresión verbal, odio o si no puede decidir todavía.</p>
-      </div>
-
-      <div class="status-card">
-        <p class="mini-title">Señales clave</p>
-        <ul id="keyword-list" class="keyword-list"></ul>
-      </div>
-    </aside>
-
     <main class="timeline-layout">
-      <section class="section-card">
+      <section class="hero-strip">
+        <div>
+          <p class="eyebrow">PYA · Simulador social</p>
+          <h1>Moderación para posts y chats</h1>
+          <p class="hero-copy">Prueba texto libre o entra al teléfono para revisar conversaciones agresivas con una vista más real.</p>
+        </div>
+        <div class="hero-side">
+          <div class="status-row">
+            <span class="status-dot"></span>
+            <strong>Analizador contextual activo</strong>
+          </div>
+          <ul id="keyword-list" class="keyword-list compact-list"></ul>
+        </div>
+      </section>
+
+      <section class="section-card phone-section">
         <div class="section-head">
           <div>
             <p class="eyebrow">Apartado 1</p>
-            <h2>Probar texto</h2>
-          </div>
-          <p class="section-copy">Escribe un mensaje manualmente y recibe una respuesta del sistema.</p>
-        </div>
-
-        <div class="composer-card inner-card">
-          <div class="composer-head">
-            <div class="avatar avatar-user">Tú</div>
-            <div>
-              <p class="composer-name">Publicar para revisar</p>
-              <p class="composer-hint">Funciona como post o comentario en una red social.</p>
-            </div>
-          </div>
-
-          <label class="sr-only" for="text-input">Texto a evaluar</label>
-          <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos y deberían expulsarlos."></textarea>
-
-          <div class="composer-actions">
-            <button id="analyze-btn" class="primary-btn">Analizar mensaje</button>
-            <button id="sample-btn" class="ghost-btn">Cargar ejemplo fuerte</button>
-            <button id="soft-btn" class="ghost-btn">Cargar ejemplo normal</button>
-          </div>
-        </div>
-
-        <section id="analysis-result" class="system-thread empty-thread">
-          <article class="system-card neutral-card">
-            <div class="system-head">
-              <div class="avatar avatar-bot">PYA</div>
-              <div>
-                <strong>Asistente de moderación</strong>
-                <p>El resultado aparecerá aquí como respuesta al mensaje.</p>
-              </div>
-            </div>
-          </article>
-        </section>
-      </section>
-
-      <section class="section-card">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Apartado 2</p>
             <h2>Simulador de teléfono</h2>
           </div>
           <p class="section-copy">Toca una conversación y mira cómo se vería la alerta dentro de un chat agresivo.</p>
@@ -109,6 +59,47 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <section class="section-card test-section">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Apartado 2</p>
+            <h2>Probar texto</h2>
+          </div>
+          <p class="section-copy">Escribe un mensaje manualmente y recibe una respuesta clara del sistema.</p>
+        </div>
+
+        <div class="composer-card inner-card">
+          <div class="composer-head">
+            <div class="avatar avatar-user">Tú</div>
+            <div>
+              <p class="composer-name">Publicar para revisar</p>
+              <p class="composer-hint">Funciona como post o comentario en una red social.</p>
+            </div>
+          </div>
+
+          <label class="sr-only" for="text-input">Texto a evaluar</label>
+          <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos y deberían expulsarlos."></textarea>
+
+          <div class="composer-actions">
+            <button id="analyze-btn" class="primary-btn">Analizar mensaje</button>
+            <button id="sample-btn" class="ghost-btn">Ejemplo fuerte</button>
+            <button id="soft-btn" class="ghost-btn">Ejemplo normal</button>
+          </div>
+        </div>
+
+        <section id="analysis-result" class="system-thread empty-thread">
+          <article class="system-card neutral-card">
+            <div class="system-head">
+              <div class="avatar avatar-bot">PYA</div>
+              <div>
+                <strong>Asistente de moderación</strong>
+                <p>El resultado aparecerá aquí como respuesta al mensaje.</p>
+              </div>
+            </div>
+          </article>
+        </section>
       </section>
 
       <section class="feed-card">

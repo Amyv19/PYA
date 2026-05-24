@@ -32,22 +32,28 @@ body {
 }
 
 .app-shell {
-  width: min(1320px, calc(100% - 28px));
+  width: min(1180px, calc(100% - 28px));
   margin: 0 auto;
   padding: 24px 0 40px;
-  display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: 22px;
+  display: block;
 }
 
-.sidebar,
 .timeline-layout {
   display: grid;
   gap: 18px;
 }
 
-.brand-card,
-.status-card,
+.hero-strip {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 18px;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(14, 23, 34, 0.92), rgba(20, 33, 48, 0.9));
+  box-shadow: var(--shadow);
+}
+
 .section-card,
 .composer-card,
 .feed-card,
@@ -64,8 +70,6 @@ body {
   backdrop-filter: blur(14px);
 }
 
-.brand-card,
-.status-card,
 .section-card,
 .feed-card,
 .insights-card {
@@ -100,16 +104,15 @@ h2,
 }
 
 h1 {
-  font-size: clamp(2.1rem, 4vw, 3.5rem);
-  line-height: 0.95;
+  font-size: clamp(2.2rem, 4vw, 4rem);
+  line-height: 0.92;
 }
 
 h2 {
   font-size: 1.8rem;
 }
 
-.sidebar-copy,
-.status-copy,
+.hero-copy,
 .composer-hint,
 .section-copy,
 .post-meta,
@@ -136,6 +139,17 @@ h2 {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 16px;
+}
+
+.hero-side {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  padding: 8px 0 0;
+}
+
+.compact-list {
+  grid-template-columns: 1fr;
 }
 
 .status-row {
@@ -389,8 +403,9 @@ button:hover,
 
 .phone-layout {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
 }
 
 .chat-picker {
@@ -419,7 +434,7 @@ button:hover,
 }
 
 .phone-frame {
-  width: min(100%, 390px);
+  width: min(100%, 420px);
   margin: 0 auto;
   padding: 14px;
   border-radius: 40px;
@@ -436,7 +451,7 @@ button:hover,
 }
 
 .phone-screen {
-  min-height: 700px;
+  min-height: 760px;
   border-radius: 30px;
   background:
     linear-gradient(180deg, rgba(33, 47, 64, 0.96), rgba(18, 28, 40, 0.98));
@@ -543,7 +558,7 @@ button:hover,
 }
 
 @media (max-width: 1180px) {
-  .app-shell {
+  .hero-strip {
     grid-template-columns: 1fr;
   }
 }
@@ -560,12 +575,17 @@ button:hover,
     padding-top: 14px;
   }
 
+  .hero-strip,
+  .section-head {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
   .analysis-grid {
     grid-template-columns: 1fr;
   }
 
-  .composer-actions,
-  .section-head {
+  .composer-actions {
     flex-direction: column;
   }
 
