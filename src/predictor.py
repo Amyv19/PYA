@@ -42,7 +42,7 @@ class HateSpeechPredictor:
                 "plaga", "basura humana", "negro de mierda", "pinches indios",
             },
             "abuse": {
-                "puta", "puto",
+                "puta", "puto", "zorra", "naca",
                 "tonta", "tonto", "idiota", "imbecil", "pendeja", "pendejo",
                 "estupida", "estupido", "tarada", "tarado", "basura",
                 "cabron", "cabrona", "asquerosa", "asqueroso",
@@ -54,6 +54,7 @@ class HateSpeechPredictor:
             "exclusion": {
                 "deportar", "expulsar", "sin derechos", "quitarles derechos",
                 "no merecen derechos", "fuera del pais", "no deberian entrar",
+                "vete a tu pais", "regresate a tu pais", "largate de mi pais",
             },
             "non_hate_context": {
                 "pelicula", "trafico", "oficina", "examen", "app", "proyecto",
@@ -92,6 +93,11 @@ class HateSpeechPredictor:
             if term in normalized:
                 score += 0.18
                 hits.append(term)
+
+        if re.search(r"\b(vete|largate|regresate|vayanse)\b.*\b(pais|paisito)\b", normalized):
+            score += 0.24
+            hits.append("expulsion_nativista")
+            reasons.append("expulsion_nativista")
 
         targets = [term for term in self.lexicon["target_groups"] if term in normalized]
         if targets:

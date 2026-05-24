@@ -26,12 +26,17 @@ const lexicon = {
     { term: "sin derechos", weight: 0.26 },
     { term: "quitarles derechos", weight: 0.28 },
     { term: "no merecen derechos", weight: 0.32 },
-    { term: "fuera del pais", weight: 0.20 }
+    { term: "fuera del pais", weight: 0.20 },
+    { term: "vete a tu pais", weight: 0.32 },
+    { term: "regresate a tu pais", weight: 0.32 },
+    { term: "largate de mi pais", weight: 0.34 }
   ],
   insultos: [
     { term: "puta", weight: 0.18 },
     { term: "puta madre", weight: 0.14 },
     { term: "puto", weight: 0.18 },
+    { term: "zorra", weight: 0.18 },
+    { term: "naca", weight: 0.16 },
     { term: "tonta", weight: 0.12 },
     { term: "tonto", weight: 0.12 },
     { term: "idiota", weight: 0.14 },
@@ -131,6 +136,12 @@ function analyzeText(text) {
     score += 0.08;
   }
 
+  if (/\b(vete|largate|regresate|vayanse)\b.*\b(pais|paisito)\b/.test(normalized)) {
+    score += 0.24;
+    categories.push("exclusion");
+    hits.push("expulsion_nativista");
+  }
+
   const uppercaseRatio = text
     ? text.replace(/[^A-ZÁÉÍÓÚÑ]/g, "").length / Math.max(text.replace(/\s+/g, "").length, 1)
     : 0;
@@ -146,7 +157,7 @@ function analyzeText(text) {
   const cappedScore = Math.min(Math.max(score, 0.02), 0.98);
   const isHate = cappedScore >= 0.48;
   const abusiveTerms = [
-    "puta", "puta madre", "puto", "tonta", "tonto", "idiota", "imbecil",
+    "puta", "puta madre", "puto", "zorra", "naca", "tonta", "tonto", "idiota", "imbecil",
     "pendeja", "pendejo", "estupida", "estupido", "tarada", "tarado"
   ];
   const isAbusive = !isHate && hits.some((term) => abusiveTerms.includes(term));
