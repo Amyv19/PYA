@@ -3,47 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PYA | Detector de Odio</title>
+  <title>PYA | Radar de Discurso</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <div class="page-noise"></div>
   <div class="shell">
     <header class="hero">
       <div class="hero-copy">
-        <p class="eyebrow">PYA · Analisis estatico</p>
-        <h1>Detector visual para revisar texto y ejemplos de X/Twitter</h1>
+        <p class="eyebrow">PYA · revision contextual</p>
+        <h1>Radar de discurso con lectura menos ingenua</h1>
         <p class="lede">
-          Esta version funciona en GitHub Pages sin backend. Usa reglas simples para estimar si un texto se parece
-          a contenido de odio y muestra resultados del proyecto ya generados.
+          Esta demo estatica ya no se limita a buscar palabras sueltas. Intenta separar ataques a grupos,
+          violencia y exclusion de quejas comunes o insultos no identitarios.
         </p>
       </div>
-      <div class="hero-panel">
-        <div class="pulse"></div>
+      <aside class="hero-panel">
+        <p class="panel-kicker">Criterio</p>
         <div class="hero-stat">
-          <span>Modo</span>
-          <strong>Frontend estatico</strong>
+          <span>Base</span>
+          <strong>Modelo + reglas</strong>
         </div>
         <div class="hero-stat">
-          <span>Fuente</span>
-          <strong>HTML + CSS + JS</strong>
+          <span>Meta</span>
+          <strong>Menos falso positivo</strong>
         </div>
-      </div>
+        <div class="hero-stat">
+          <span>Lectura</span>
+          <strong>Contexto antes que ruido</strong>
+        </div>
+      </aside>
     </header>
 
     <main class="grid">
       <section class="card analyzer">
         <div class="card-head">
           <p class="eyebrow">Analizador</p>
-          <h2>Prueba un texto</h2>
+          <h2>Evalua un texto</h2>
         </div>
-        <label class="input-label" for="text-input">Escribe un mensaje o un tweet</label>
-        <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos..."></textarea>
+        <label class="input-label" for="text-input">Escribe un mensaje o comentario</label>
+        <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos y deberian expulsarlos."></textarea>
         <div class="actions">
-          <button id="analyze-btn" class="primary-btn">Analizar texto</button>
-          <button id="sample-btn" class="ghost-btn">Cargar ejemplo</button>
+          <button id="analyze-btn" class="primary-btn">Evaluar</button>
+          <button id="sample-btn" class="ghost-btn">Usar ejemplo</button>
         </div>
         <div id="analysis-result" class="result empty">
           <p>El resultado aparecera aqui.</p>
@@ -52,16 +57,16 @@
 
       <section class="card metrics">
         <div class="card-head">
-          <p class="eyebrow">Experimentos</p>
-          <h2>Resumen del proyecto</h2>
+          <p class="eyebrow">Lectura</p>
+          <h2>Como decide</h2>
         </div>
         <div id="metrics-cards" class="metric-stack"></div>
       </section>
 
       <section class="card keywords">
         <div class="card-head">
-          <p class="eyebrow">Reglas</p>
-          <h2>Senales que evalua esta demo</h2>
+          <p class="eyebrow">Pistas</p>
+          <h2>Senales priorizadas</h2>
         </div>
         <ul id="keyword-list" class="keyword-list"></ul>
       </section>
@@ -69,11 +74,8 @@
       <section class="card tweets">
         <div class="card-head">
           <p class="eyebrow">Feed demo</p>
-          <h2>Publicaciones de ejemplo</h2>
+          <h2>Ejemplos clasificados</h2>
         </div>
-        <p class="section-copy">
-          Si publicas tambien un archivo `docs/twitter_posts.json`, esta tabla lo usara automaticamente.
-        </p>
         <div id="tweet-table" class="tweet-table"></div>
       </section>
     </main>
