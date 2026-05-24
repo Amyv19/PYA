@@ -75,18 +75,51 @@ const sampleTweets = [
   { user: "alerta_social", handle: "@alerta", text: "Esa gente no merece derechos y deberian expulsarlos." }
 ];
 
+const phoneChats = [
+  {
+    id: "chat-1",
+    name: "Grupo escolar",
+    preview: "Puta naca, vete a tu pais",
+    messages: [
+      { from: "other", text: "Nadie te quiere en el grupo." },
+      { from: "other", text: "Puta naca, vete a tu pais." },
+      { from: "me", text: "Ya paren." }
+    ]
+  },
+  {
+    id: "chat-2",
+    name: "Chat de trabajo",
+    preview: "Eres una idiota",
+    messages: [
+      { from: "other", text: "Tu reporte salio mal otra vez." },
+      { from: "other", text: "Eres una idiota, no entiendes nada." },
+      { from: "me", text: "No me hables asi." }
+    ]
+  },
+  {
+    id: "chat-3",
+    name: "Debate normal",
+    preview: "No estoy de acuerdo",
+    messages: [
+      { from: "other", text: "No estoy de acuerdo con tu propuesta." },
+      { from: "other", text: "Podemos corregirlo sin pelear." },
+      { from: "me", text: "Va, lo revisamos." }
+    ]
+  }
+];
+
 const sampleMetrics = [
   {
-    title: "Diferencia groseria de odio",
-    body: "No todo insulto es odio. Si hay groseria sin grupo objetivo, responde como agresion verbal."
+    title: "Diferencia grosería de odio",
+    body: "No todo insulto es odio. Si hay grosería sin grupo objetivo, responde como agresión verbal."
   },
   {
-    title: "Muestra cuando no puede ayudar",
-    body: "Si no escribes nada o mandas algo demasiado corto, el sistema lo dice con un mensaje directo."
+    title: "Aterriza la respuesta",
+    body: "Cuando no puede decidir o falta texto, el sistema lo dice con mensajes breves y claros."
   },
   {
-    title: "Piensa como timeline",
-    body: "La salida ahora aparece como respuesta de moderacion dentro de una conversacion tipo red social."
+    title: "Simula dos entornos",
+    body: "Puedes probar una publicación normal y también ver un teléfono con chats agresivos."
   }
 ];
 
@@ -254,7 +287,7 @@ function renderAnalysis(rawText) {
   container.innerHTML = `
     <article class="post-card">
       <div class="post-head">
-        <div class="avatar avatar-user">T&uacute;</div>
+        <div class="avatar avatar-user">Tu</div>
         <div>
           <p class="post-author">Tu mensaje</p>
           <p class="post-meta">Simulacion de post para moderacion</p>
@@ -350,6 +383,74 @@ function renderTweets(rows) {
   }).join("");
 }
 
+function createPhoneAlert(chat) {
+  const combined = chat.messages.map((message) => message.text).join(" ");
+  const result = analyzeText(combined);
+
+  if (result.isHate) {
+    return {
+      klass: "danger",
+      title: "Alerta fuerte",
+      body: "Este chat muestra señales de odio o expulsión. Se recomienda revisión inmediata."
+    };
+  }
+
+  if (result.isAbusive) {
+    return {
+      klass: "warn",
+      title: "Agresión verbal detectada",
+      body: "Hay insultos directos. El sistema avisaría a moderación o sugeriría bloquear."
+    };
+  }
+
+  return {
+    klass: "safe",
+    title: "Sin riesgo fuerte",
+    body: "La conversación no muestra señales claras de odio y podría quedarse solo como desacuerdo."
+  };
+}
+
+function renderPhonePicker(activeId) {
+  const root = document.getElementById("chat-picker");
+  root.innerHTML = phoneChats.map((chat) => `
+    <button class="chat-chip ${chat.id === activeId ? "active" : ""}" data-chat-id="${chat.id}">
+      <strong>${escapeHtml(chat.name)}</strong>
+      <span>${escapeHtml(chat.preview)}</span>
+    </button>
+  `).join("");
+
+  root.querySelectorAll("[data-chat-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      renderPhoneChat(button.getAttribute("data-chat-id"));
+    });
+  });
+}
+
+function renderPhoneChat(chatId) {
+  const chat = phoneChats.find((item) => item.id === chatId) || phoneChats[0];
+  const messagesRoot = document.getElementById("phone-messages");
+  const systemRoot = document.getElementById("phone-system");
+  const alert = createPhoneAlert(chat);
+
+  document.getElementById("phone-contact").textContent = chat.name;
+  document.getElementById("phone-status").textContent = "Chat monitoreado por moderacion";
+
+  messagesRoot.innerHTML = chat.messages.map((message) => `
+    <div class="msg-row ${message.from === "me" ? "me" : "other"}">
+      <div class="msg-bubble">${escapeHtml(message.text)}</div>
+    </div>
+  `).join("");
+
+  systemRoot.innerHTML = `
+    <div class="phone-alert ${alert.klass}">
+      <strong>${alert.title}</strong>
+      <p>${alert.body}</p>
+    </div>
+  `;
+
+  renderPhonePicker(chat.id);
+}
+
 async function loadTweets() {
   try {
     const response = await fetch("./twitter_posts.json");
@@ -388,5 +489,6 @@ function wireUI() {
 renderKeywords();
 renderMetrics(sampleMetrics);
 renderAnalysis("");
+renderPhoneChat(phoneChats[0].id);
 loadTweets();
 wireUI();
