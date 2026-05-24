@@ -108,39 +108,12 @@ const phoneChats = [
   }
 ];
 
-const sampleMetrics = [
-  {
-    title: "Diferencia grosería de odio",
-    body: "No todo insulto es odio. Si hay grosería sin grupo objetivo, responde como agresión verbal."
-  },
-  {
-    title: "Aterriza la respuesta",
-    body: "Cuando no puede decidir o falta texto, el sistema lo dice con mensajes breves y claros."
-  },
-  {
-    title: "Simula dos entornos",
-    body: "Puedes probar una publicación normal y también ver un teléfono con chats agresivos."
-  }
-];
-
 function normalizeText(text) {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/https?:\/\/\S+/g, "")
-    .replace(/[^\w\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/https?:\/\/\S+/g, "").replace(/[^\w\s]/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function escapeHtml(text) {
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+  return String(text).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 }
 
 function findMatches(normalized, terms) {
@@ -164,185 +137,55 @@ function analyzeText(text) {
     }
   });
 
-  const hasTargetedStructure = /\b(eres|son|ustedes|esa gente|ellos|ellas|tu gente)\b/.test(normalized);
-  if (hasTargetedStructure && hits.length) {
-    score += 0.08;
-  }
-
+  if (/\b(eres|son|ustedes|esa gente|ellos|ellas|tu gente)\b/.test(normalized) && hits.length) score += 0.08;
   if (/\b(vete|largate|regresate|vayanse)\b.*\b(pais|paisito)\b/.test(normalized)) {
     score += 0.24;
     categories.push("exclusion");
     hits.push("expulsion_nativista");
   }
-
-  const uppercaseRatio = text
-    ? text.replace(/[^A-ZÁÉÍÓÚÑ]/g, "").length / Math.max(text.replace(/\s+/g, "").length, 1)
-    : 0;
-  if (uppercaseRatio > 0.34) {
-    score += 0.05;
-  }
-
-  const exclamations = (text.match(/!/g) || []).length;
-  if (exclamations >= 2 && hits.length) {
-    score += 0.04;
-  }
+  const uppercaseRatio = text ? text.replace(/[^A-ZÁÉÍÓÚÑ]/g, "").length / Math.max(text.replace(/\s+/g, "").length, 1) : 0;
+  if (uppercaseRatio > 0.34) score += 0.05;
+  if ((text.match(/!/g) || []).length >= 2 && hits.length) score += 0.04;
 
   const cappedScore = Math.min(Math.max(score, 0.02), 0.98);
   const isHate = cappedScore >= 0.48;
-  const abusiveTerms = [
-    "puta", "puta madre", "puto", "zorra", "naca", "tonta", "tonto", "idiota", "imbecil",
-    "pendeja", "pendejo", "estupida", "estupido", "tarada", "tarado"
-  ];
+  const abusiveTerms = ["puta", "puta madre", "puto", "zorra", "naca", "tonta", "tonto", "idiota", "imbecil", "pendeja", "pendejo", "estupida", "estupido", "tarada", "tarado"];
   const isAbusive = !isHate && hits.some((term) => abusiveTerms.includes(term));
   const severity = cappedScore >= 0.78 ? "alto" : cappedScore >= 0.48 ? "medio" : "bajo";
 
-  return {
-    normalized,
-    score: cappedScore,
-    isHate,
-    isAbusive,
-    hits: [...new Set(hits)],
-    categories: [...new Set(categories)],
-    severity
-  };
+  return { normalized, score: cappedScore, isHate, isAbusive, hits: [...new Set(hits)], categories: [...new Set(categories)], severity };
 }
 
 function createSystemState(rawText) {
   const trimmed = rawText.trim();
-
-  if (!trimmed) {
-    return {
-      tone: "neutral",
-      title: "No puedo evaluar un mensaje vacio todavia.",
-      summary: "Escribe algo primero y te respondo como si fuera una alerta de moderacion.",
-      detail: "Cuando no hay texto, el sistema evita inventar una clasificacion.",
-      meta: { confianza: "--", categoria: "sin texto", lectura: "esperando mensaje" }
-    };
-  }
-
-  if (trimmed.length < 3) {
-    return {
-      tone: "neutral",
-      title: "No puedo decidir con tan poco texto.",
-      summary: "Necesito al menos una palabra o frase un poco mas clara para interpretar el contexto.",
-      detail: "Con entradas demasiado cortas es facil marcar falso positivo o falso negativo.",
-      meta: { confianza: "baja", categoria: "muy corto", lectura: "sin contexto" }
-    };
-  }
+  if (!trimmed) return { tone: "neutral", title: "No puedo evaluar un mensaje vacío todavía.", summary: "Escribe algo primero.", detail: "Cuando no hay texto, el sistema no clasifica.", meta: ["sin texto"] };
+  if (trimmed.length < 3) return { tone: "neutral", title: "No puedo decidir con tan poco texto.", summary: "Necesito más contexto.", detail: "Con entradas muy cortas es fácil fallar.", meta: ["muy corto"] };
 
   const result = analyzeText(trimmed);
-  const confidence = `${(result.score * 100).toFixed(0)}%`;
   const terms = result.hits.length ? result.hits.join(", ") : "sin coincidencias fuertes";
   const categories = result.categories.length ? result.categories.join(", ") : "sin categoria critica";
 
-  if (result.isHate) {
-    return {
-      tone: "danger",
-      title: "Alerta: posible mensaje de odio.",
-      summary: "Detecte ataque dirigido, exclusion o lenguaje con riesgo alto dentro del mensaje.",
-      detail: `Terminos detectados: ${terms}. Categorias: ${categories}.`,
-      meta: { confianza: confidence, categoria: "odio", lectura: result.severity }
-    };
-  }
-
-  if (result.isAbusive) {
-    return {
-      tone: "warn",
-      title: "Esto parece agresion verbal, no odio directo.",
-      summary: "Hay groserias o insultos, pero no aparecen suficientes señales de ataque contra un grupo.",
-      detail: `Terminos detectados: ${terms}. El sistema lo separa del odio identitario para evitar exagerar.`,
-      meta: { confianza: confidence, categoria: "agresion verbal", lectura: result.severity }
-    };
-  }
-
-  return {
-    tone: "safe",
-    title: "No veo señales fuertes de odio aqui.",
-    summary: "El mensaje puede ser neutral, una critica comun o una queja sin objetivo identitario claro.",
-    detail: `Lectura actual: ${categories}. Texto normalizado: ${result.normalized || "sin contenido"}.`,
-    meta: { confianza: confidence, categoria: "sin odio", lectura: result.severity }
-  };
-}
-
-function toneClass(tone) {
-  if (tone === "danger") return "danger-card";
-  if (tone === "warn") return "warn-card";
-  if (tone === "safe") return "safe-card";
-  return "neutral-card";
-}
-
-function badgeClass(tone) {
-  if (tone === "danger") return "badge badge-danger";
-  if (tone === "warn") return "badge badge-warn";
-  if (tone === "safe") return "badge badge-safe";
-  return "badge";
+  if (result.isHate) return { tone: "danger", title: "Alerta: posible odio.", summary: "Detecté ataque dirigido o exclusión.", detail: `Términos: ${terms}. Categorías: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "odio", result.severity] };
+  if (result.isAbusive) return { tone: "warn", title: "Esto parece agresión verbal.", summary: "Hay insultos, pero no suficiente señal de odio directo.", detail: `Términos: ${terms}.`, meta: [`score ${Math.round(result.score * 100)}%`, "agresion verbal", result.severity] };
+  return { tone: "safe", title: "No veo señales fuertes de odio.", summary: "Suena más a queja o desacuerdo.", detail: `Lectura: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "sin odio", result.severity] };
 }
 
 function renderAnalysis(rawText) {
   const state = createSystemState(rawText);
-  const container = document.getElementById("analysis-result");
-  const safeText = escapeHtml(rawText.trim() || "Todavia no escribes nada.");
-
-  container.className = "system-thread";
-  container.innerHTML = `
-    <article class="post-card">
-      <div class="post-head">
-        <div class="avatar avatar-user">Tu</div>
-        <div>
-          <p class="post-author">Tu mensaje</p>
-          <p class="post-meta">Simulacion de post para moderacion</p>
-        </div>
-      </div>
-      <div class="post-bubble">${safeText}</div>
-    </article>
-    <article class="system-card ${toneClass(state.tone)}">
-      <div class="system-head">
-        <div class="avatar avatar-bot">PYA</div>
-        <div>
-          <strong>${state.title}</strong>
-          <p>${state.summary}</p>
-        </div>
-      </div>
-      <div class="analysis-grid">
-        <div class="analysis-pill">
-          <span>Confianza</span>
-          <strong>${state.meta.confianza}</strong>
-        </div>
-        <div class="analysis-pill">
-          <span>Categoria</span>
-          <strong>${state.meta.categoria}</strong>
-        </div>
-        <div class="analysis-pill">
-          <span>Lectura</span>
-          <strong>${state.meta.lectura}</strong>
-        </div>
-      </div>
-      <p class="analysis-copy">${state.detail}</p>
+  const root = document.getElementById("analysis-result");
+  root.innerHTML = `
+    <article class="system-card ${state.tone === "danger" ? "danger-card" : state.tone === "warn" ? "warn-card" : state.tone === "safe" ? "safe-card" : "neutral-card"}">
+      <strong>${state.title}</strong>
+      <p>${state.summary}</p>
+      <div class="analysis-meta">${state.meta.map((item) => `<span class="meta-chip">${item}</span>`).join("")}</div>
+      <p>${state.detail}</p>
     </article>
   `;
 }
 
 function renderKeywords() {
-  const list = document.getElementById("keyword-list");
-  const curated = [
-    "grupos objetivo",
-    "expulsion y exclusion",
-    "violencia explicita",
-    "groseria sin contexto",
-    "critica comun",
-    "mensajes demasiado cortos"
-  ];
-  list.innerHTML = curated.map((item) => `<li>${item}</li>`).join("");
-}
-
-function renderMetrics(metrics) {
-  const root = document.getElementById("metrics-cards");
-  root.innerHTML = metrics.map((item) => `
-    <article class="metric-item">
-      <strong>${item.title}</strong>
-      <p>${item.body}</p>
-    </article>
-  `).join("");
+  const root = document.getElementById("keyword-list");
+  root.innerHTML = ["grupos objetivo", "expulsion y exclusion", "violencia explicita", "groseria sin contexto", "critica comun"].map((item) => `<li>${item}</li>`).join("");
 }
 
 function renderTweets(rows) {
@@ -350,64 +193,26 @@ function renderTweets(rows) {
   root.innerHTML = rows.map((row) => {
     const result = analyzeText(row.text || "");
     const tone = result.isHate ? "danger" : result.isAbusive ? "warn" : "safe";
-    const badgeText = result.isHate
-      ? `odio ${result.severity}`
-      : result.isAbusive
-        ? "agresion verbal"
-        : "sin odio";
-    const replyCopy = result.isHate
-      ? "El sistema subiria este mensaje a revision por ataque dirigido o exclusion."
-      : result.isAbusive
-        ? "El sistema marcaria el tono agresivo, pero sin llevarlo directo a odio."
-        : "El sistema lo dejaria pasar o pediria mas contexto antes de bloquear.";
-
+    const copy = result.isHate ? "Se mandaria a revision." : result.isAbusive ? "Se marcaria por agresion." : "No muestra riesgo fuerte.";
     return `
       <article class="post-card">
         <div class="post-head">
-          <div class="avatar avatar-feed">${escapeHtml((row.user || "feed").slice(0, 3).toUpperCase())}</div>
-          <div>
-            <p class="post-author">${escapeHtml(row.user || "usuario_demo")}</p>
-            <p class="post-meta">${escapeHtml(row.handle || "@demo")} · ahora</p>
-          </div>
+          <strong>${escapeHtml(row.user)}</strong>
+          <span class="post-meta">${escapeHtml(row.handle)}</span>
         </div>
-        <div class="post-bubble">${escapeHtml(row.text || "")}</div>
-        <article class="reply-card ${tone === "danger" ? "reply-danger" : tone === "warn" ? "reply-warn" : "reply-safe"}">
-          <div class="reply-head">
-            <span class="${badgeClass(tone)}">${badgeText}</span>
-            <span class="post-meta">score ${(result.score * 100).toFixed(0)}%</span>
-          </div>
-          <p class="analysis-copy">${replyCopy}</p>
-        </article>
+        <div class="post-body">${escapeHtml(row.text)}</div>
+        <div class="post-response ${tone}">${copy}</div>
       </article>
     `;
   }).join("");
 }
 
 function createPhoneAlert(chat) {
-  const combined = chat.messages.map((message) => message.text).join(" ");
+  const combined = chat.messages.map((m) => m.text).join(" ");
   const result = analyzeText(combined);
-
-  if (result.isHate) {
-    return {
-      klass: "danger",
-      title: "Alerta fuerte",
-      body: "Este chat muestra señales de odio o expulsión. Se recomienda revisión inmediata."
-    };
-  }
-
-  if (result.isAbusive) {
-    return {
-      klass: "warn",
-      title: "Agresión verbal detectada",
-      body: "Hay insultos directos. El sistema avisaría a moderación o sugeriría bloquear."
-    };
-  }
-
-  return {
-    klass: "safe",
-    title: "Sin riesgo fuerte",
-    body: "La conversación no muestra señales claras de odio y podría quedarse solo como desacuerdo."
-  };
+  if (result.isHate) return { klass: "danger", title: "Alerta fuerte", body: "Hay señales de odio o expulsión. Revisión inmediata." };
+  if (result.isAbusive) return { klass: "warn", title: "Agresión verbal", body: "Hay insultos directos. Se recomendaría bloquear o moderar." };
+  return { klass: "safe", title: "Sin riesgo fuerte", body: "Parece más desacuerdo que ataque." };
 }
 
 function renderPhonePicker(activeId) {
@@ -418,68 +223,54 @@ function renderPhonePicker(activeId) {
       <span>${escapeHtml(chat.preview)}</span>
     </button>
   `).join("");
-
   root.querySelectorAll("[data-chat-id]").forEach((button) => {
-    button.addEventListener("click", () => {
-      renderPhoneChat(button.getAttribute("data-chat-id"));
-    });
+    button.addEventListener("click", () => renderPhoneChat(button.getAttribute("data-chat-id")));
   });
 }
 
 function renderPhoneChat(chatId) {
   const chat = phoneChats.find((item) => item.id === chatId) || phoneChats[0];
-  const messagesRoot = document.getElementById("phone-messages");
-  const systemRoot = document.getElementById("phone-system");
   const alert = createPhoneAlert(chat);
-
   document.getElementById("phone-contact").textContent = chat.name;
-  document.getElementById("phone-status").textContent = "Chat monitoreado por moderacion";
-
-  messagesRoot.innerHTML = chat.messages.map((message) => `
+  document.getElementById("phone-status").textContent = "Chat monitoreado";
+  document.getElementById("phone-messages").innerHTML = chat.messages.map((message) => `
     <div class="msg-row ${message.from === "me" ? "me" : "other"}">
       <div class="msg-bubble">${escapeHtml(message.text)}</div>
     </div>
   `).join("");
-
-  systemRoot.innerHTML = `
+  document.getElementById("phone-system").innerHTML = `
     <div class="phone-alert ${alert.klass}">
       <strong>${alert.title}</strong>
       <p>${alert.body}</p>
     </div>
   `;
-
   renderPhonePicker(chat.id);
 }
 
-async function loadTweets() {
-  try {
-    const response = await fetch("./twitter_posts.json");
-    if (!response.ok) {
-      throw new Error("No se pudo leer twitter_posts.json");
-    }
-    const data = await response.json();
-    const mapped = data.slice(0, 6).map((item, index) => ({
-      user: `cuenta_${index + 1}`,
-      handle: `@feed${index + 1}`,
-      text: item.text || ""
-    }));
-    renderTweets(mapped);
-  } catch (error) {
-    renderTweets(sampleTweets);
-  }
+function wireTabs() {
+  const tabs = document.querySelectorAll(".tab");
+  const panels = {
+    phone: document.getElementById("panel-phone"),
+    text: document.getElementById("panel-text"),
+    feed: document.getElementById("panel-feed")
+  };
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      tabs.forEach((item) => item.classList.remove("active"));
+      Object.values(panels).forEach((panel) => panel.classList.remove("active"));
+      tab.classList.add("active");
+      panels[tab.getAttribute("data-tab")].classList.add("active");
+    });
+  });
 }
 
 function wireUI() {
   const input = document.getElementById("text-input");
-  document.getElementById("analyze-btn").addEventListener("click", () => {
-    renderAnalysis(input.value);
-  });
-
+  document.getElementById("analyze-btn").addEventListener("click", () => renderAnalysis(input.value));
   document.getElementById("sample-btn").addEventListener("click", () => {
     input.value = "Pinches indios, no merecen derechos y deberian expulsarlos.";
     renderAnalysis(input.value);
   });
-
   document.getElementById("soft-btn").addEventListener("click", () => {
     input.value = "No estoy de acuerdo con tu idea, pero podemos discutirla sin insultos.";
     renderAnalysis(input.value);
@@ -487,8 +278,8 @@ function wireUI() {
 }
 
 renderKeywords();
-renderMetrics(sampleMetrics);
 renderAnalysis("");
 renderPhoneChat(phoneChats[0].id);
-loadTweets();
+renderTweets(sampleTweets);
+wireTabs();
 wireUI();
