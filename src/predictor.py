@@ -1,6 +1,11 @@
 """
-Utilidades para entrenar un clasificador simple y realizar predicciones.
+Utilidades para entrenar un clasificador y enriquecer la prediccion
+con reglas para bajar errores obvios en una demo local.
 """
+from __future__ import annotations
+
+import re
+import unicodedata
 from typing import Dict, List
 
 import numpy as np
@@ -11,12 +16,127 @@ from config import CLASS_LABELS, RANDOM_SEED
 
 
 class HateSpeechPredictor:
-    """Entrena un pipeline simple en memoria para clasificar texto."""
+    """Combina un clasificador TF-IDF con reglas de contexto simples."""
 
     def __init__(self):
-        self.vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1, 2))
-        self.model = LogisticRegression(max_iter=1000, random_state=RANDOM_SEED)
+        self.vectorizer = TfidfVectorizer(
+            max_features=8000,
+            ngram_range=(1, 3),
+            min_df=1,
+            sublinear_tf=True,
+        )
+        self.model = LogisticRegression(
+            max_iter=2000,
+            random_state=RANDOM_SEED,
+            class_weight="balanced",
+        )
         self.is_trained = False
+        self.lexicon = {
+            "target_groups": {
+                "inmigrantes", "migrantes", "musulmanes", "negros", "indios",
+                "gays", "lesbianas", "trans", "mujeres", "judios", "pobres",
+                "feministas", "discapacitados", "refugiados", "homosexuales",
+            },
+            "slurs": {
+                "sudaca", "maricon", "joto", "puta", "zorra", "parasito",
+                "plaga", "basura humana", "negro de mierda", "pinches indios",
+            },
+            "abuse": {
+                "puta", "puto",
+                "tonta", "tonto", "idiota", "imbecil", "pendeja", "pendejo",
+                "estupida", "estupido", "tarada", "tarado", "basura",
+                "cabron", "cabrona", "asquerosa", "asqueroso",
+            },
+            "violence": {
+                "matar", "maten", "genocidio", "linchar", "exterminar",
+                "desaparecer", "morir", "encerrar",
+            },
+            "exclusion": {
+                "deportar", "expulsar", "sin derechos", "quitarles derechos",
+                "no merecen derechos", "fuera del pais", "no deberian entrar",
+            },
+            "non_hate_context": {
+                "pelicula", "trafico", "oficina", "examen", "app", "proyecto",
+                "libro", "servicio", "debate", "argumento", "clima", "cancion",
+            },
+        }
+
+    def _normalize_for_rules(self, text: str) -> str:
+        text = unicodedata.normalize("NFD", text.lower())
+        text = "".join(ch for ch in text if unicodedata.category(ch) != "Mn")
+        text = re.sub(r"https?://\S+|www\.\S+", " ", text)
+        text = re.sub(r"[^\w\s]", " ", text)
+        return re.sub(r"\s+", " ", text).strip()
+
+    def _rule_signal(self, text: str) -> Dict[str, object]:
+        normalized = self._normalize_for_rules(text)
+        hits: List[str] = []
+        reasons: List[str] = []
+        score = 0.0
+
+        for term in self.lexicon["slurs"]:
+            if term in normalized:
+                score += 0.24
+                hits.append(term)
+        abuse_hits = []
+        for term in self.lexicon["abuse"]:
+            if term in normalized:
+                score += 0.10
+                hits.append(term)
+                abuse_hits.append(term)
+        for term in self.lexicon["violence"]:
+            if term in normalized:
+                score += 0.22
+                hits.append(term)
+        for term in self.lexicon["exclusion"]:
+            if term in normalized:
+                score += 0.18
+                hits.append(term)
+
+        targets = [term for term in self.lexicon["target_groups"] if term in normalized]
+        if targets:
+            score += 0.16
+            hits.extend(targets)
+            reasons.append("grupo_objetivo")
+
+        has_direct_attack = bool(re.search(r"\b(eres|son|ustedes|esa gente|ellos|ellas|tu gente)\b", normalized))
+        if has_direct_attack and hits:
+            score += 0.10
+            reasons.append("ataque_directo")
+        elif has_direct_attack and abuse_hits:
+            score += 0.08
+            reasons.append("insulto_directo")
+
+        uppercase_ratio = (
+            len(re.findall(r"[A-ZÁÉÍÓÚÑ]", text)) / max(len(re.sub(r"\s+", "", text)), 1)
+            if text else 0
+        )
+        if uppercase_ratio > 0.35:
+            score += 0.05
+            reasons.append("enfasis_mayusculas")
+
+        exclamations = len(re.findall(r"!", text))
+        if exclamations >= 2 and hits:
+            score += 0.04
+            reasons.append("enfasis_exclamaciones")
+
+        if not targets and any(term in normalized for term in self.lexicon["non_hate_context"]):
+            score -= 0.12
+            reasons.append("contexto_no_dirigido")
+
+        if re.search(r"\b(no estoy de acuerdo|debatir|criticar|argumento|idea|propuesta)\b", normalized):
+            score -= 0.08
+            reasons.append("critica_no_identitaria")
+
+        score = float(np.clip(score, 0.0, 0.95))
+        return {
+            "score": score,
+            "hits": sorted(set(hits)),
+            "reasons": reasons,
+            "normalized": normalized,
+            "abuse_hits": sorted(set(abuse_hits)),
+            "targets": sorted(set(targets)),
+        }
 
     def fit(self, texts: List[str], labels: List[int]) -> None:
         """Entrena el modelo con textos y etiquetas."""
@@ -27,19 +147,40 @@ class HateSpeechPredictor:
     def predict_one(self, text: str) -> Dict:
         """Predice una sola pieza de texto."""
         if not self.is_trained:
-            raise RuntimeError("El predictor aún no ha sido entrenado.")
+            raise RuntimeError("El predictor aun no ha sido entrenado.")
 
         X = self.vectorizer.transform([text])
-        pred = int(self.model.predict(X)[0])
-        proba = self.model.predict_proba(X)[0]
-        confidence = float(np.max(proba))
+        model_proba = self.model.predict_proba(X)[0]
+        rules = self._rule_signal(text)
+
+        hate_score = float(np.clip((model_proba[1] * 0.7) + (rules["score"] * 0.3), 0.0, 1.0))
+        pred = int(hate_score >= 0.5)
+        confidence = float(max(hate_score, 1 - hate_score))
+        has_abuse = bool(rules["abuse_hits"])
+        has_targets = bool(rules["targets"])
+        has_hate_markers = bool(has_targets or rules["score"] >= 0.35)
+
+        if pred == 1 and has_hate_markers:
+            content_type = "odio"
+        elif has_abuse:
+            content_type = "agresion_verbal"
+        else:
+            content_type = "neutral"
 
         return {
             "prediction": pred,
             "label": CLASS_LABELS[pred],
+            "content_type": content_type,
             "confidence": confidence,
             "probabilities": {
-                CLASS_LABELS[0]: float(proba[0]),
-                CLASS_LABELS[1]: float(proba[1]),
+                CLASS_LABELS[0]: float(1 - hate_score),
+                CLASS_LABELS[1]: hate_score,
             },
+            "model_probability": float(model_proba[1]),
+            "rule_score": float(rules["score"]),
+            "matched_terms": rules["hits"],
+            "abuse_hits": rules["abuse_hits"],
+            "target_groups": rules["targets"],
+            "reasons": rules["reasons"],
+            "normalized_text": rules["normalized"],
         }

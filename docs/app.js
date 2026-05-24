@@ -29,6 +29,9 @@ const lexicon = {
     { term: "fuera del pais", weight: 0.2 }
   ],
   insultos: [
+    { term: "puta", weight: 0.18 },
+    { term: "puta madre", weight: 0.14 },
+    { term: "puto", weight: 0.18 },
     { term: "tonta", weight: 0.12 },
     { term: "tonto", weight: 0.12 },
     { term: "idiota", weight: 0.14 },
@@ -72,15 +75,15 @@ const sampleTweets = [
 const sampleMetrics = [
   {
     title: "Ataque dirigido",
-    body: "Sube el score si hay grupo objetivo, exclusion o violencia, no solo insultos sueltos."
+    body: "Sube el score si hay grupo objetivo, exclusión o violencia, no solo insultos sueltos."
   },
   {
-    title: "Contexto comun",
-    body: "Baja el score cuando detecta quejas de producto, debate o critica no identitaria."
+    title: "Contexto común",
+    body: "Baja el score cuando detecta quejas de producto, debate o crítica no identitaria."
   },
   {
     title: "Lectura final",
-    body: "Combina intensidad, terminos detectados y contexto para estimar riesgo de odio."
+    body: "Combina intensidad, términos detectados y contexto para estimar riesgo de odio."
   }
 ];
 
@@ -136,7 +139,7 @@ function analyzeText(text) {
   const cappedScore = Math.min(Math.max(score, 0.02), 0.98);
   const isHate = cappedScore >= 0.48;
   const isAbusive = !isHate && hits.some((term) =>
-    ["tonta", "tonto", "idiota", "imbecil", "pendeja", "pendejo", "estupida", "estupido", "tarada", "tarado"].includes(term)
+    ["puta", "puta madre", "puto", "tonta", "tonto", "idiota", "imbecil", "pendeja", "pendejo", "estupida", "estupido", "tarada", "tarado"].includes(term)
   );
   const severity = cappedScore >= 0.78 ? "alto" : cappedScore >= 0.48 ? "medio" : "bajo";
 
@@ -157,10 +160,10 @@ function renderAnalysis(result) {
     ? "Riesgo alto de odio"
     : result.isAbusive
       ? "Agresion verbal detectada"
-      : "Sin senales fuertes de odio";
+      : "Sin señales fuertes de odio";
   const klass = result.isHate ? "alert" : result.isAbusive ? "alert" : "safe";
   const hits = result.hits.length ? result.hits.join(", ") : "Ninguna coincidencia clara";
-  const categories = result.categories.length ? result.categories.join(", ") : "sin categoria critica";
+  const categories = result.categories.length ? result.categories.join(", ") : "sin categoría crítica";
 
   box.className = `result ${klass}`;
   box.innerHTML = `
@@ -172,11 +175,11 @@ function renderAnalysis(result) {
         <strong>${result.severity}</strong>
       </div>
       <div class="detail-card">
-        <span>Categorias</span>
+        <span>Categorías</span>
         <strong>${categories}</strong>
       </div>
       <div class="detail-card">
-        <span>Terminos</span>
+        <span>Términos</span>
         <strong>${hits}</strong>
       </div>
     </div>
@@ -188,11 +191,11 @@ function renderKeywords() {
   const list = document.getElementById("keyword-list");
   const curated = [
     "grupos objetivo",
-    "expulsion y exclusion",
-    "violencia explicita",
+    "expulsión y exclusión",
+    "violencia explícita",
     "insultos identitarios",
     "contexto no dirigido",
-    "debate o critica comun"
+    "debate o crítica común"
   ];
   list.innerHTML = curated.map((item) => `<li>${item}</li>`).join("");
 }
@@ -227,7 +230,7 @@ async function loadTweets() {
   try {
     const response = await fetch("./twitter_posts.json");
     if (!response.ok) {
-      throw new Error("No se encontro twitter_posts.json");
+      throw new Error("No se encontró twitter_posts.json");
     }
     const data = await response.json();
     renderTweets(data);
