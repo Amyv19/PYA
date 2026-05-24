@@ -3,80 +3,89 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PYA | Radar de Discurso</title>
+  <title>PYA | Red Social de Moderacion</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="page-noise"></div>
-  <div class="shell">
-    <header class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">PYA · revisión contextual</p>
-        <h1>Radar de discurso con lectura menos ingenua</h1>
-        <p class="lede">
-          Esta demo estática ya no se limita a buscar palabras sueltas. Intenta separar ataques a grupos,
-          violencia y exclusión de quejas comunes o insultos no identitarios.
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-card">
+        <p class="eyebrow">PYA · Radar Social</p>
+        <h1>Mensajes, contexto y alertas</h1>
+        <p class="sidebar-copy">
+          Simula una red social donde cada publicaci&oacute;n se revisa con reglas de contexto para separar groser&iacute;as, agresi&oacute;n verbal y odio.
         </p>
       </div>
-      <aside class="hero-panel">
-        <p class="panel-kicker">Criterio</p>
-        <div class="hero-stat">
-          <span>Base</span>
-          <strong>Modelo + reglas</strong>
-        </div>
-        <div class="hero-stat">
-          <span>Meta</span>
-          <strong>Menos falso positivo</strong>
-        </div>
-        <div class="hero-stat">
-          <span>Lectura</span>
-          <strong>Contexto antes que ruido</strong>
-        </div>
-      </aside>
-    </header>
 
-    <main class="grid">
-      <section class="card analyzer">
-        <div class="card-head">
-          <p class="eyebrow">Analizador</p>
-          <h2>Evalúa un texto</h2>
+      <div class="status-card">
+        <p class="mini-title">Estado del sistema</p>
+        <div class="status-row">
+          <span class="status-dot"></span>
+          <strong>Analizador activo</strong>
         </div>
-        <label class="input-label" for="text-input">Escribe un mensaje o comentario</label>
-        <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos y deberían expulsarlos."></textarea>
-        <div class="actions">
-          <button id="analyze-btn" class="primary-btn">Evaluar</button>
-          <button id="sample-btn" class="ghost-btn">Usar ejemplo</button>
+        <p class="status-copy">Puede responder con alertas, mensajes de apoyo o avisos de que no puede clasificar algo todav&iacute;a.</p>
+      </div>
+
+      <div class="status-card">
+        <p class="mini-title">Lo que prioriza</p>
+        <ul id="keyword-list" class="keyword-list"></ul>
+      </div>
+    </aside>
+
+    <main class="timeline-layout">
+      <section class="composer-card">
+        <div class="composer-head">
+          <div class="avatar avatar-user">T&uacute;</div>
+          <div>
+            <p class="composer-name">Publicar para revisar</p>
+            <p class="composer-hint">Escribe como si fuera un post o mensaje de una red social.</p>
+          </div>
         </div>
-        <div id="analysis-result" class="result empty">
-          <p>El resultado aparecerá aquí.</p>
+
+        <label class="sr-only" for="text-input">Texto a evaluar</label>
+        <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos y deber&iacute;an expulsarlos."></textarea>
+
+        <div class="composer-actions">
+          <button id="analyze-btn" class="primary-btn">Analizar mensaje</button>
+          <button id="sample-btn" class="ghost-btn">Cargar ejemplo fuerte</button>
+          <button id="soft-btn" class="ghost-btn">Cargar ejemplo normal</button>
         </div>
       </section>
 
-      <section class="card metrics">
-        <div class="card-head">
-          <p class="eyebrow">Lectura</p>
-          <h2>Cómo decide</h2>
+      <section id="analysis-result" class="system-thread empty-thread">
+        <article class="system-card neutral-card">
+          <div class="system-head">
+            <div class="avatar avatar-bot">PYA</div>
+            <div>
+              <strong>Asistente de moderaci&oacute;n</strong>
+              <p>El resultado aparecer&aacute; aqu&iacute; como respuesta al mensaje.</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="feed-card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Timeline demo</p>
+            <h2>Mensajes recientes</h2>
+          </div>
+          <p class="section-copy">Vista tipo red social con clasificaci&oacute;n r&aacute;pida y reacci&oacute;n del sistema.</p>
+        </div>
+        <div id="tweet-table" class="feed-list"></div>
+      </section>
+
+      <section class="insights-card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Motor</p>
+            <h2>C&oacute;mo responde</h2>
+          </div>
         </div>
         <div id="metrics-cards" class="metric-stack"></div>
-      </section>
-
-      <section class="card keywords">
-        <div class="card-head">
-          <p class="eyebrow">Pistas</p>
-          <h2>Señales priorizadas</h2>
-        </div>
-        <ul id="keyword-list" class="keyword-list"></ul>
-      </section>
-
-      <section class="card tweets">
-        <div class="card-head">
-          <p class="eyebrow">Feed demo</p>
-          <h2>Ejemplos clasificados</h2>
-        </div>
-        <div id="tweet-table" class="tweet-table"></div>
       </section>
     </main>
   </div>
