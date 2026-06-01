@@ -99,12 +99,12 @@ class HateSpeechPredictor:
                 hits.append(term)
 
         if self._contains_obfuscated_phrase(text, "matate"):
-            score += 0.26
+            score = max(score, 0.72)
             hits.append("matate")
             reasons.append("autolesion_explicita")
 
         if self._contains_obfuscated_phrase(text, "suicidate"):
-            score += 0.30
+            score = max(score, 0.76)
             hits.append("suicidate")
             reasons.append("autolesion_explicita")
         for term in self.lexicon["exclusion"]:

@@ -164,12 +164,12 @@ function analyzeText(text) {
     hits.push("expulsion_nativista");
   }
   if (containsObfuscatedPhrase(text, "matate")) {
-    score += 0.30;
+    score = Math.max(score, 0.72);
     categories.push("violencia");
     hits.push("matate");
   }
   if (containsObfuscatedPhrase(text, "suicidate")) {
-    score += 0.32;
+    score = Math.max(score, 0.76);
     categories.push("violencia");
     hits.push("suicidate");
   }
