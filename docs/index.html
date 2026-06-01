@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PYA | Cuantificación del odio</title>
+  <title>Cuantificación del odio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -14,14 +14,14 @@
   <div class="page-glow page-glow-right"></div>
 
   <div class="app-shell">
-    <header class="hero">
+    <header class="hero reveal">
       <div class="hero-copy">
-        <p class="eyebrow">PYA · análisis contextual</p>
+        <p class="eyebrow">Análisis contextual</p>
         <h1>Cuantificación del odio en redes sociales</h1>
         <p class="hero-lede">Una interfaz de demostración para estimar riesgo, separar agresión verbal de odio dirigido y priorizar revisión humana sin presentar el resultado como certeza absoluta.</p>
       </div>
 
-      <div class="hero-visual">
+      <div class="hero-visual floaty">
         <img src="./hero-illustration.svg" alt="Ilustración de una interfaz que compara mensajes, señales de riesgo y lectura contextual.">
       </div>
 
@@ -33,7 +33,7 @@
     </header>
 
     <main class="stage">
-      <section class="panel active" id="panel-phone">
+      <section class="panel active reveal stagger-1" id="panel-phone">
         <div class="panel-head">
           <div>
             <p class="eyebrow">Modo 1</p>
@@ -43,12 +43,12 @@
         </div>
 
         <div class="phone-layout">
-          <aside class="conversation-card">
+          <aside class="conversation-card glass stagger-2">
             <div class="section-label">Conversaciones</div>
             <div id="chat-picker" class="chat-picker-list"></div>
           </aside>
 
-          <div class="phone-stage">
+          <div class="phone-stage stagger-3">
             <div class="phone-frame">
               <div class="phone-notch"></div>
               <div class="phone-screen">
@@ -64,7 +64,7 @@
               </div>
             </div>
 
-            <aside class="context-card">
+            <aside class="context-card glass">
               <div class="section-label">Qué mira</div>
               <ul class="context-list">
                 <li>Si el ataque va dirigido a un grupo o identidad.</li>
@@ -76,7 +76,7 @@
         </div>
       </section>
 
-      <section class="panel" id="panel-text">
+      <section class="panel reveal stagger-1" id="panel-text">
         <div class="panel-head">
           <div>
             <p class="eyebrow">Modo 2</p>
@@ -86,7 +86,7 @@
         </div>
 
         <div class="text-layout">
-          <div class="composer-card">
+          <div class="composer-card glass stagger-2">
             <label class="input-label" for="text-input">Mensaje</label>
             <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos y deberían expulsarlos."></textarea>
             <div class="composer-actions">
@@ -96,7 +96,7 @@
             </div>
           </div>
 
-          <aside class="illustration-card">
+          <aside class="illustration-card ghost-visual floaty stagger-3">
             <img src="./text-illustration.svg" alt="Ilustración de un panel de análisis de texto con lectura del sistema y tarjetas de resultado.">
             <p>La lectura combina patrones lingüísticos, contexto y señales de exclusión para priorizar revisión humana.</p>
           </aside>
@@ -110,7 +110,7 @@
         </section>
       </section>
 
-      <section class="panel" id="panel-feed">
+      <section class="panel reveal stagger-1" id="panel-feed">
         <div class="panel-head">
           <div>
             <p class="eyebrow">Modo 3</p>
@@ -119,9 +119,9 @@
           <p class="panel-copy">Mensajes simulados con una respuesta corta del sistema para mostrar cómo podría priorizar revisión.</p>
         </div>
 
-        <div id="tweet-table" class="feed-list"></div>
+        <div id="tweet-table" class="feed-list stagger-2"></div>
 
-        <div class="rules-card">
+        <div class="rules-card glass stagger-3">
           <div class="section-label">Señales priorizadas</div>
           <ul id="keyword-list" class="keyword-list"></ul>
         </div>

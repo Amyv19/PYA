@@ -1,16 +1,17 @@
 :root {
-  --bg: #f4efe7;
-  --bg-deep: #e8dfd2;
-  --surface: rgba(255, 251, 246, 0.84);
-  --line: rgba(88, 61, 39, 0.14);
-  --text: #221a14;
-  --muted: #67584e;
-  --accent: #c45c3b;
-  --accent-2: #0f766e;
-  --danger: #a63c33;
-  --warn: #a56a1f;
-  --safe: #2e7d5b;
-  --shadow: 0 24px 60px rgba(97, 67, 40, 0.12);
+  --bg: #0b1220;
+  --bg-deep: #121c2e;
+  --surface: rgba(20, 31, 49, 0.72);
+  --surface-soft: rgba(32, 46, 71, 0.46);
+  --line: rgba(164, 180, 204, 0.16);
+  --text: #eef4fb;
+  --muted: #9db0c7;
+  --accent: #48bdd5;
+  --accent-2: #80d7e5;
+  --danger: #ff8d89;
+  --warn: #f0b66c;
+  --safe: #7bd5ad;
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.30);
 }
 
 * {
@@ -23,8 +24,8 @@ body {
   font-family: "Manrope", sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at 12% 14%, rgba(196, 92, 59, 0.12), transparent 22%),
-    radial-gradient(circle at 88% 18%, rgba(15, 118, 110, 0.10), transparent 18%),
+    radial-gradient(circle at 15% 18%, rgba(72, 189, 213, 0.16), transparent 24%),
+    radial-gradient(circle at 84% 14%, rgba(128, 215, 229, 0.14), transparent 20%),
     linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
   position: relative;
   overflow-x: hidden;
@@ -32,24 +33,24 @@ body {
 
 .page-glow {
   position: fixed;
-  width: 26rem;
-  height: 26rem;
+  width: 28rem;
+  height: 28rem;
   border-radius: 999px;
-  filter: blur(70px);
-  opacity: 0.34;
+  filter: blur(90px);
+  opacity: 0.42;
   pointer-events: none;
 }
 
 .page-glow-left {
-  top: -8rem;
+  top: -7rem;
   left: -10rem;
-  background: rgba(196, 92, 59, 0.18);
+  background: rgba(61, 122, 186, 0.20);
 }
 
 .page-glow-right {
   right: -8rem;
-  top: 8rem;
-  background: rgba(15, 118, 110, 0.14);
+  top: 10rem;
+  background: rgba(72, 189, 213, 0.16);
 }
 
 .app-shell {
@@ -76,16 +77,19 @@ body {
 
 .hero,
 .panel,
-.conversation-card,
-.context-card,
+.glass,
 .composer-card,
 .system-card,
 .rules-card,
-.illustration-card {
+.ghost-visual {
   background: var(--surface);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(18px);
   border-radius: 30px;
   padding: 24px;
+}
+
+.ghost-visual {
+  background: linear-gradient(180deg, rgba(26, 39, 61, 0.38), rgba(26, 39, 61, 0.18));
 }
 
 .hero {
@@ -105,6 +109,8 @@ body {
   display: block;
   width: 100%;
   height: auto;
+  opacity: 0.9;
+  mix-blend-mode: screen;
 }
 
 .tabbar {
@@ -165,29 +171,30 @@ button {
   border: 0;
   border-radius: 999px;
   padding: 12px 18px;
-  background: rgba(34, 26, 20, 0.06);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text);
   font: inherit;
   font-weight: 800;
   cursor: pointer;
-  transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+  transition: transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease;
 }
 
 .tab:hover,
 .chat-chip:hover,
 button:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(72, 189, 213, 0.12);
 }
 
 .tab.active,
 .primary-btn,
 .chat-chip.active {
-  background: linear-gradient(135deg, var(--accent), #de7a55);
-  color: #fff8f2;
+  background: linear-gradient(135deg, #46b7cf, #2d6f96);
+  color: #f4fbff;
 }
 
 .ghost-btn {
-  background: rgba(34, 26, 20, 0.06);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .stage {
@@ -267,14 +274,14 @@ button:hover {
   width: 100%;
   padding: 16px;
   border-radius: 42px;
-  background: linear-gradient(180deg, #2d261f, #16110d);
+  background: linear-gradient(180deg, rgba(3, 8, 18, 0.94), rgba(18, 27, 41, 0.96));
 }
 
 .phone-notch {
   width: 136px;
   height: 24px;
   border-radius: 999px;
-  background: #0b0908;
+  background: #03070f;
   margin: 0 auto 10px;
 }
 
@@ -282,8 +289,8 @@ button:hover {
   min-height: 620px;
   border-radius: 32px;
   background:
-    radial-gradient(circle at top right, rgba(196, 92, 59, 0.16), transparent 28%),
-    linear-gradient(180deg, #f6efe5 0%, #eadfce 100%);
+    radial-gradient(circle at top right, rgba(72, 189, 213, 0.16), transparent 28%),
+    linear-gradient(180deg, rgba(35, 51, 75, 0.96) 0%, rgba(22, 32, 49, 0.98) 100%);
   padding: 18px;
   display: grid;
   grid-template-rows: auto 1fr auto;
@@ -305,7 +312,7 @@ button:hover {
   padding: 7px 11px;
   height: fit-content;
   border-radius: 999px;
-  background: rgba(15, 118, 110, 0.10);
+  background: rgba(72, 189, 213, 0.12);
   color: var(--accent-2);
   font-size: 0.8rem;
   font-weight: 800;
@@ -333,16 +340,16 @@ button:hover {
 }
 
 .msg-row.other .msg-bubble {
-  background: rgba(34, 26, 20, 0.08);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .msg-row.me .msg-bubble {
-  background: linear-gradient(135deg, var(--accent-2), #3b9a92);
+  background: linear-gradient(135deg, #46b7cf, #2d6f96);
   color: #f7fffd;
 }
 
 .phone-system {
-  border-top: 1px solid rgba(34, 26, 20, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 12px;
 }
 
@@ -354,17 +361,17 @@ button:hover {
 
 .phone-alert.safe,
 .post-response.safe {
-  background: rgba(46, 125, 91, 0.12);
+  background: rgba(123, 213, 173, 0.12);
 }
 
 .phone-alert.warn,
 .post-response.warn {
-  background: rgba(165, 106, 31, 0.13);
+  background: rgba(240, 182, 108, 0.13);
 }
 
 .phone-alert.danger,
 .post-response.danger {
-  background: rgba(166, 60, 51, 0.12);
+  background: rgba(255, 141, 137, 0.12);
 }
 
 .phone-alert p {
@@ -382,7 +389,7 @@ button:hover {
 .keyword-list li {
   padding: 12px 14px;
   border-radius: 16px;
-  background: rgba(34, 26, 20, 0.05);
+  background: rgba(255, 255, 255, 0.05);
   line-height: 1.45;
 }
 
@@ -397,16 +404,16 @@ textarea {
   min-height: 190px;
   padding: 16px;
   border-radius: 22px;
-  border: 1px solid rgba(34, 26, 20, 0.10);
-  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(8, 14, 24, 0.42);
   color: var(--text);
   font: inherit;
   resize: vertical;
 }
 
 textarea:focus {
-  outline: 2px solid rgba(196, 92, 59, 0.22);
-  border-color: rgba(196, 92, 59, 0.32);
+  outline: 2px solid rgba(72, 189, 213, 0.24);
+  border-color: rgba(72, 189, 213, 0.32);
 }
 
 .composer-actions {
@@ -426,19 +433,19 @@ textarea:focus {
 }
 
 .neutral-card {
-  background: linear-gradient(180deg, rgba(255, 251, 246, 0.92), rgba(244, 236, 226, 0.96));
+  background: linear-gradient(180deg, rgba(24, 36, 56, 0.94), rgba(16, 24, 37, 0.96));
 }
 
 .safe-card {
-  background: linear-gradient(180deg, rgba(226, 243, 233, 0.96), rgba(251, 247, 241, 0.96));
+  background: linear-gradient(180deg, rgba(17, 56, 52, 0.94), rgba(16, 24, 37, 0.96));
 }
 
 .warn-card {
-  background: linear-gradient(180deg, rgba(247, 233, 209, 0.96), rgba(251, 247, 241, 0.96));
+  background: linear-gradient(180deg, rgba(70, 50, 27, 0.94), rgba(16, 24, 37, 0.96));
 }
 
 .danger-card {
-  background: linear-gradient(180deg, rgba(247, 226, 223, 0.96), rgba(251, 247, 241, 0.96));
+  background: linear-gradient(180deg, rgba(76, 28, 35, 0.94), rgba(16, 24, 37, 0.96));
 }
 
 .analysis-meta {
@@ -451,12 +458,12 @@ textarea:focus {
 .meta-chip {
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(34, 26, 20, 0.06);
+  background: rgba(255, 255, 255, 0.08);
   font-size: 0.9rem;
 }
 
 .post-card {
-  background: rgba(255, 251, 246, 0.8);
+  background: rgba(20, 31, 49, 0.72);
   border-radius: 24px;
   padding: 18px;
 }
@@ -471,11 +478,63 @@ textarea:focus {
 .post-body {
   padding: 14px;
   border-radius: 18px;
-  background: rgba(34, 26, 20, 0.05);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .post-response {
   margin-top: 12px;
+}
+
+.reveal {
+  animation: riseIn 700ms ease both;
+}
+
+.stagger-1 {
+  animation-delay: 80ms;
+}
+
+.stagger-2 {
+  animation-delay: 160ms;
+}
+
+.stagger-3 {
+  animation-delay: 240ms;
+}
+
+.floaty {
+  animation: floaty 6s ease-in-out infinite;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .floaty,
+  .tab,
+  .chat-chip,
+  button {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 @media (max-width: 980px) {
@@ -500,12 +559,11 @@ textarea:focus {
 
   .hero,
   .panel,
-  .conversation-card,
-  .context-card,
+  .glass,
   .composer-card,
   .system-card,
   .rules-card,
-  .illustration-card {
+  .ghost-visual {
     padding: 18px;
     border-radius: 24px;
   }
