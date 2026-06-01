@@ -56,9 +56,21 @@ body {
 .topbar {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
-  align-items: flex-end;
-  margin-bottom: 18px;
+  gap: 32px;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 26px 26px 24px;
+}
+
+.hero-copy {
+  max-width: 700px;
+}
+
+.hero-copy .lede {
+  max-width: 34rem;
+  margin-top: 14px;
+  font-size: 1.05rem;
+  line-height: 1.5;
 }
 
 .kicker,
@@ -95,6 +107,8 @@ h2 {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  justify-content: flex-end;
+  align-self: center;
 }
 
 .tab,
@@ -131,16 +145,28 @@ button {
 .panel-head {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
+  gap: 28px;
   align-items: flex-start;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
+}
+
+.panel-head > div:first-child {
+  max-width: 24rem;
+}
+
+.panel-copy {
+  max-width: 30rem;
+  margin: 18px 0 0 auto;
+  line-height: 1.45;
+  font-size: 1rem;
 }
 
 .phone-layout {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: 280px minmax(320px, 440px);
+  gap: 28px;
   align-items: start;
+  justify-content: center;
 }
 
 .chat-picker-list,
@@ -153,6 +179,7 @@ button {
 .chat-chip {
   width: 100%;
   text-align: left;
+  padding: 16px 18px;
 }
 
 .chat-chip strong,
@@ -167,9 +194,9 @@ button {
 }
 
 .phone-frame {
-  width: min(100%, 410px);
-  margin: 0 auto;
-  padding: 14px;
+  width: 100%;
+  margin: 0;
+  padding: 18px;
   border-radius: 40px;
   background: linear-gradient(180deg, #070c13, #111a28);
 }
@@ -183,13 +210,13 @@ button {
 }
 
 .phone-screen {
-  min-height: 720px;
+  min-height: 680px;
   border-radius: 30px;
   background: linear-gradient(180deg, #213043, #182433);
-  padding: 16px;
+  padding: 18px;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  gap: 12px;
+  gap: 14px;
 }
 
 .phone-topbar {
@@ -383,10 +410,22 @@ textarea {
 
 @media (max-width: 860px) {
   .topbar,
-  .panel-head,
-  .phone-layout {
+  .panel-head {
     flex-direction: column;
+  }
+
+  .phone-layout {
     grid-template-columns: 1fr;
+    justify-content: stretch;
+  }
+
+  .tabbar {
+    justify-content: flex-start;
+  }
+
+  .panel-copy {
+    margin: 0;
+    max-width: none;
   }
 
   .phone-frame {
