@@ -71,18 +71,18 @@ const lexicon = {
 const sampleTweets = [
   { user: "lucia.design", handle: "@lucia", text: "No estoy de acuerdo con tu argumento, pero podemos debatirlo." },
   { user: "foro.vecinal", handle: "@foro", text: "Pinches indios, nunca aprenden." },
-  { user: "cinefilo_88", handle: "@cinefilo", text: "La pelicula estuvo horrible y perdi mi dinero." },
-  { user: "alerta_social", handle: "@alerta", text: "Esa gente no merece derechos y deberian expulsarlos." }
+  { user: "cinefilo_88", handle: "@cinefilo", text: "La película estuvo horrible y perdí mi dinero." },
+  { user: "alerta_social", handle: "@alerta", text: "Esa gente no merece derechos y deberían expulsarlos." }
 ];
 
 const phoneChats = [
   {
     id: "chat-1",
     name: "Grupo escolar",
-    preview: "Puta naca, vete a tu pais",
+    preview: "Puta naca, vete a tu país",
     messages: [
       { from: "other", text: "Nadie te quiere en el grupo." },
-      { from: "other", text: "Puta naca, vete a tu pais." },
+      { from: "other", text: "Puta naca, vete a tu país." },
       { from: "me", text: "Ya paren." }
     ]
   },
@@ -91,9 +91,9 @@ const phoneChats = [
     name: "Chat de trabajo",
     preview: "Eres una idiota",
     messages: [
-      { from: "other", text: "Tu reporte salio mal otra vez." },
+      { from: "other", text: "Tu reporte salió mal otra vez." },
       { from: "other", text: "Eres una idiota, no entiendes nada." },
-      { from: "me", text: "No me hables asi." }
+      { from: "me", text: "No me hables así." }
     ]
   },
   {
@@ -109,11 +109,23 @@ const phoneChats = [
 ];
 
 function normalizeText(text) {
-  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/https?:\/\/\S+/g, "").replace(/[^\w\s]/g, " ").replace(/\s+/g, " ").trim();
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/https?:\/\/\S+/g, "")
+    .replace(/[^\w\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function escapeHtml(text) {
-  return String(text).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
 function findMatches(normalized, terms) {
@@ -158,16 +170,57 @@ function analyzeText(text) {
 
 function createSystemState(rawText) {
   const trimmed = rawText.trim();
-  if (!trimmed) return { tone: "neutral", title: "No puedo evaluar un mensaje vacío todavía.", summary: "Escribe algo primero.", detail: "Cuando no hay texto, el sistema no clasifica.", meta: ["sin texto"] };
-  if (trimmed.length < 3) return { tone: "neutral", title: "No puedo decidir con tan poco texto.", summary: "Necesito más contexto.", detail: "Con entradas muy cortas es fácil fallar.", meta: ["muy corto"] };
+  if (!trimmed) {
+    return {
+      tone: "neutral",
+      title: "Todavía no puedo evaluar un mensaje vacío.",
+      summary: "Escribe algo primero.",
+      detail: "Cuando no hay texto, el sistema no genera una lectura.",
+      meta: ["sin texto"]
+    };
+  }
+
+  if (trimmed.length < 3) {
+    return {
+      tone: "neutral",
+      title: "No puedo decidir con tan poco texto.",
+      summary: "Necesito más contexto.",
+      detail: "Con entradas muy cortas es fácil equivocarse.",
+      meta: ["muy corto"]
+    };
+  }
 
   const result = analyzeText(trimmed);
   const terms = result.hits.length ? result.hits.join(", ") : "sin coincidencias fuertes";
-  const categories = result.categories.length ? result.categories.join(", ") : "sin categoria critica";
+  const categories = result.categories.length ? result.categories.join(", ") : "sin categoría crítica";
 
-  if (result.isHate) return { tone: "danger", title: "Probabilidad alta de odio.", summary: "La lectura apunta a ataque dirigido o exclusion.", detail: `Terminos: ${terms}. Categorias: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "odio", result.severity] };
-  if (result.isAbusive) return { tone: "warn", title: "Agresion verbal probable.", summary: "Hay insultos, pero no suficiente senal de odio directo.", detail: `Terminos: ${terms}.`, meta: [`score ${Math.round(result.score * 100)}%`, "agresion verbal", result.severity] };
-  return { tone: "safe", title: "Sin senales fuertes de odio.", summary: "Suena mas a queja o desacuerdo.", detail: `Lectura: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "sin odio", result.severity] };
+  if (result.isHate) {
+    return {
+      tone: "danger",
+      title: "Probabilidad alta de odio.",
+      summary: "La lectura apunta a ataque dirigido o exclusión.",
+      detail: `Términos: ${terms}. Categorías: ${categories}.`,
+      meta: [`score ${Math.round(result.score * 100)}%`, "odio", result.severity]
+    };
+  }
+
+  if (result.isAbusive) {
+    return {
+      tone: "warn",
+      title: "Agresión verbal probable.",
+      summary: "Hay insultos, pero no suficiente señal de odio directo.",
+      detail: `Términos: ${terms}.`,
+      meta: [`score ${Math.round(result.score * 100)}%`, "agresión verbal", result.severity]
+    };
+  }
+
+  return {
+    tone: "safe",
+    title: "Sin señales fuertes de odio.",
+    summary: "Suena más a queja o desacuerdo.",
+    detail: `Lectura: ${categories}.`,
+    meta: [`score ${Math.round(result.score * 100)}%`, "sin odio", result.severity]
+  };
 }
 
 function renderAnalysis(rawText) {
@@ -185,7 +238,13 @@ function renderAnalysis(rawText) {
 
 function renderKeywords() {
   const root = document.getElementById("keyword-list");
-  root.innerHTML = ["grupos objetivo", "expulsion y exclusion", "violencia explicita", "groseria sin contexto", "critica comun"].map((item) => `<li>${item}</li>`).join("");
+  root.innerHTML = [
+    "Ataques a grupos o identidades",
+    "Expulsión y exclusión",
+    "Violencia explícita",
+    "Insulto sin contexto identitario",
+    "Crítica común o desacuerdo"
+  ].map((item) => `<li>${item}</li>`).join("");
 }
 
 function renderTweets(rows) {
@@ -193,7 +252,12 @@ function renderTweets(rows) {
   root.innerHTML = rows.map((row) => {
     const result = analyzeText(row.text || "");
     const tone = result.isHate ? "danger" : result.isAbusive ? "warn" : "safe";
-    const copy = result.isHate ? "Se recomendaria revision humana." : result.isAbusive ? "Se marcaria por agresion verbal probable." : "No muestra riesgo fuerte.";
+    const copy = result.isHate
+      ? "Se recomendaría revisión humana."
+      : result.isAbusive
+        ? "Se marcaría como agresión verbal probable."
+        : "No muestra riesgo fuerte.";
+
     return `
       <article class="post-card">
         <div class="post-head">
@@ -210,9 +274,16 @@ function renderTweets(rows) {
 function createPhoneAlert(chat) {
   const combined = chat.messages.map((m) => m.text).join(" ");
   const result = analyzeText(combined);
-  if (result.isHate) return { klass: "danger", title: "Riesgo alto", body: "Hay senales de odio o exclusion. Conviene revision humana inmediata." };
-  if (result.isAbusive) return { klass: "warn", title: "Agresion verbal", body: "Hay insultos directos. Se recomendaria moderar o revisar." };
-  return { klass: "safe", title: "Sin riesgo fuerte", body: "Parece mas desacuerdo que ataque." };
+
+  if (result.isHate) {
+    return { klass: "danger", title: "Riesgo alto", body: "Hay señales de odio o exclusión. Conviene revisión humana inmediata." };
+  }
+
+  if (result.isAbusive) {
+    return { klass: "warn", title: "Agresión verbal", body: "Hay insultos directos. Se recomendaría moderar o revisar." };
+  }
+
+  return { klass: "safe", title: "Sin riesgo fuerte", body: "Parece más desacuerdo que ataque." };
 }
 
 function renderPhonePicker(activeId) {
@@ -223,6 +294,7 @@ function renderPhonePicker(activeId) {
       <span>${escapeHtml(chat.preview)}</span>
     </button>
   `).join("");
+
   root.querySelectorAll("[data-chat-id]").forEach((button) => {
     button.addEventListener("click", () => renderPhoneChat(button.getAttribute("data-chat-id")));
   });
@@ -254,6 +326,7 @@ function wireTabs() {
     text: document.getElementById("panel-text"),
     feed: document.getElementById("panel-feed")
   };
+
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       tabs.forEach((item) => item.classList.remove("active"));
@@ -268,7 +341,7 @@ function wireUI() {
   const input = document.getElementById("text-input");
   document.getElementById("analyze-btn").addEventListener("click", () => renderAnalysis(input.value));
   document.getElementById("sample-btn").addEventListener("click", () => {
-    input.value = "Pinches indios, no merecen derechos y deberian expulsarlos.";
+    input.value = "Pinches indios, no merecen derechos y deberían expulsarlos.";
     renderAnalysis(input.value);
   });
   document.getElementById("soft-btn").addEventListener("click", () => {

@@ -3,23 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PYA | Cuantificacion del Odio</title>
+  <title>PYA | Cuantificación del odio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <div class="page-glow page-glow-left"></div>
+  <div class="page-glow page-glow-right"></div>
+
   <div class="app-shell">
-    <header class="topbar">
-      <div class="hero-copy">
-        <p class="kicker">PYA</p>
-        <h1>Cuantificacion del odio</h1>
-        <p class="lede">Una lectura probabilistica para revisar riesgo sin asumir certeza absoluta.</p>
+    <header class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">PYA · análisis contextual</p>
+        <h1>Cuantificación del odio en redes sociales</h1>
+        <p class="hero-lede">Una interfaz de demostración para estimar riesgo, separar agresión verbal de odio dirigido y priorizar revisión humana sin presentar el resultado como certeza absoluta.</p>
       </div>
+
       <nav class="tabbar" aria-label="Modos">
-        <button class="tab active" data-tab="phone">Telefono</button>
-        <button class="tab" data-tab="text">Probar texto</button>
+        <button class="tab active" data-tab="phone">Chat</button>
+        <button class="tab" data-tab="text">Texto</button>
         <button class="tab" data-tab="feed">Feed</button>
       </nav>
     </header>
@@ -28,31 +32,42 @@
       <section class="panel active" id="panel-phone">
         <div class="panel-head">
           <div>
-            <p class="kicker">Modo 1</p>
-            <h2>Chat en telefono</h2>
+            <p class="eyebrow">Modo 1</p>
+            <h2>Vista de conversación</h2>
           </div>
-          <p class="panel-copy">Selecciona una conversacion y observa como el sistema estima el riesgo antes de escalarlo.</p>
+          <p class="panel-copy">Selecciona un chat y observa cómo cambia la lectura del sistema según el contexto del intercambio.</p>
         </div>
 
         <div class="phone-layout">
-          <aside class="chat-list-card">
-            <p class="mini-title">Conversaciones</p>
+          <aside class="conversation-card">
+            <div class="section-label">Conversaciones</div>
             <div id="chat-picker" class="chat-picker-list"></div>
           </aside>
 
-          <div class="phone-frame">
-            <div class="phone-notch"></div>
-            <div class="phone-screen">
-              <div class="phone-topbar">
-                <div>
-                  <strong id="phone-contact">Chat demo</strong>
-                  <p id="phone-status">Revision contextual</p>
+          <div class="phone-stage">
+            <div class="phone-frame">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="phone-topbar">
+                  <div>
+                    <strong id="phone-contact">Chat demo</strong>
+                    <p id="phone-status">Revisión contextual</p>
+                  </div>
+                  <span class="phone-badge">En línea</span>
                 </div>
-                <span class="phone-badge">Online</span>
+                <div id="phone-messages" class="phone-messages"></div>
+                <div id="phone-system" class="phone-system"></div>
               </div>
-              <div id="phone-messages" class="phone-messages"></div>
-              <div id="phone-system" class="phone-system"></div>
             </div>
+
+            <aside class="context-card">
+              <div class="section-label">Qué mira</div>
+              <ul class="context-list">
+                <li>Si el ataque va dirigido a un grupo o identidad.</li>
+                <li>Si hay exclusión, expulsión o violencia explícita.</li>
+                <li>Si se trata solo de una grosería sin odio identitario.</li>
+              </ul>
+            </aside>
           </div>
         </div>
       </section>
@@ -60,26 +75,26 @@
       <section class="panel" id="panel-text">
         <div class="panel-head">
           <div>
-            <p class="kicker">Modo 2</p>
-            <h2>Probar texto</h2>
+            <p class="eyebrow">Modo 2</p>
+            <h2>Prueba de texto</h2>
           </div>
-          <p class="panel-copy">Escribe un mensaje manualmente y recibe una estimacion clara del riesgo.</p>
+          <p class="panel-copy">Escribe un mensaje y recibe una lectura breve, probabilística y más fácil de interpretar.</p>
         </div>
 
         <div class="composer-card">
           <label class="input-label" for="text-input">Mensaje</label>
-          <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos y deberian expulsarlos."></textarea>
+          <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos y deberían expulsarlos."></textarea>
           <div class="composer-actions">
             <button id="analyze-btn" class="primary-btn">Analizar</button>
-            <button id="sample-btn" class="ghost-btn">Ejemplo fuerte</button>
-            <button id="soft-btn" class="ghost-btn">Ejemplo normal</button>
+            <button id="sample-btn" class="ghost-btn">Ejemplo de riesgo</button>
+            <button id="soft-btn" class="ghost-btn">Ejemplo neutral</button>
           </div>
         </div>
 
         <section id="analysis-result" class="analysis-stack">
           <article class="system-card neutral-card">
-            <strong>Asistente de cuantificacion</strong>
-            <p>La estimacion aparecera aqui.</p>
+            <strong>Asistente de cuantificación</strong>
+            <p>La estimación aparecerá aquí.</p>
           </article>
         </section>
       </section>
@@ -87,16 +102,16 @@
       <section class="panel" id="panel-feed">
         <div class="panel-head">
           <div>
-            <p class="kicker">Modo 3</p>
+            <p class="eyebrow">Modo 3</p>
             <h2>Feed de ejemplo</h2>
           </div>
-          <p class="panel-copy">Posts simulados con una lectura breve del sistema.</p>
+          <p class="panel-copy">Mensajes simulados con una respuesta corta del sistema para mostrar cómo podría priorizar revisión.</p>
         </div>
 
         <div id="tweet-table" class="feed-list"></div>
 
         <div class="rules-card">
-          <p class="mini-title">Que prioriza</p>
+          <div class="section-label">Señales priorizadas</div>
           <ul id="keyword-list" class="keyword-list"></ul>
         </div>
       </section>
