@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PYA | Simulador Social</title>
+  <title>PYA | Cuantificacion del Odio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -14,11 +14,11 @@
     <header class="topbar">
       <div>
         <p class="kicker">PYA</p>
-        <h1>Simulador de moderación</h1>
-        <p class="lede">Una vista a la vez para que no se sienta revuelto.</p>
+        <h1>Cuantificacion del odio</h1>
+        <p class="lede">Una lectura probabilistica para revisar riesgo sin asumir certeza absoluta.</p>
       </div>
       <nav class="tabbar" aria-label="Modos">
-        <button class="tab active" data-tab="phone">Teléfono</button>
+        <button class="tab active" data-tab="phone">Telefono</button>
         <button class="tab" data-tab="text">Probar texto</button>
         <button class="tab" data-tab="feed">Feed</button>
       </nav>
@@ -29,9 +29,9 @@
         <div class="panel-head">
           <div>
             <p class="kicker">Modo 1</p>
-            <h2>Chat en teléfono</h2>
+            <h2>Chat en telefono</h2>
           </div>
-          <p class="panel-copy">Selecciona una conversación y mira la alerta abajo del chat.</p>
+          <p class="panel-copy">Selecciona una conversacion y mira la alerta abajo del chat.</p>
         </div>
 
         <div class="phone-layout">
@@ -46,7 +46,7 @@
               <div class="phone-topbar">
                 <div>
                   <strong id="phone-contact">Chat demo</strong>
-                  <p id="phone-status">Moderación en vivo</p>
+                  <p id="phone-status">Revision contextual</p>
                 </div>
                 <span class="phone-badge">Online</span>
               </div>
@@ -63,12 +63,12 @@
             <p class="kicker">Modo 2</p>
             <h2>Probar texto</h2>
           </div>
-          <p class="panel-copy">Escribe un mensaje manualmente y recibe una respuesta clara.</p>
+          <p class="panel-copy">Escribe un mensaje manualmente y recibe una estimacion clara del riesgo.</p>
         </div>
 
         <div class="composer-card">
           <label class="input-label" for="text-input">Mensaje</label>
-          <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos y deberían expulsarlos."></textarea>
+          <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos y deberian expulsarlos."></textarea>
           <div class="composer-actions">
             <button id="analyze-btn" class="primary-btn">Analizar</button>
             <button id="sample-btn" class="ghost-btn">Ejemplo fuerte</button>
@@ -78,8 +78,8 @@
 
         <section id="analysis-result" class="analysis-stack">
           <article class="system-card neutral-card">
-            <strong>Asistente de moderación</strong>
-            <p>El resultado aparecerá aquí.</p>
+            <strong>Asistente de cuantificacion</strong>
+            <p>La estimacion aparecera aqui.</p>
           </article>
         </section>
       </section>
@@ -90,13 +90,13 @@
             <p class="kicker">Modo 3</p>
             <h2>Feed de ejemplo</h2>
           </div>
-          <p class="panel-copy">Posts simulados con respuesta corta del sistema.</p>
+          <p class="panel-copy">Posts simulados con una lectura breve del sistema.</p>
         </div>
 
         <div id="tweet-table" class="feed-list"></div>
 
         <div class="rules-card">
-          <p class="mini-title">Qué prioriza</p>
+          <p class="mini-title">Que prioriza</p>
           <ul id="keyword-list" class="keyword-list"></ul>
         </div>
       </section>

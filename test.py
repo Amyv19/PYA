@@ -1,5 +1,5 @@
 """
-Script de pruebas para el proyecto de detección de hate speech
+Script de pruebas para el proyecto de cuantificacion de odio.
 """
 import sys
 import os

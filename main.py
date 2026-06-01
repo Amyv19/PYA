@@ -1,5 +1,5 @@
 """
-Script principal para medición de errores de detección de hate speech
+Script principal para cuantificacion de riesgo de odio en texto.
 """
 import sys
 from pathlib import Path
@@ -18,7 +18,7 @@ from experiments import ExperimentRunner
 def main():
     """Función principal"""
     print("="*70)
-    print("Medición de Errores en Detección de Odio en Redes Sociales")
+    print("Cuantificacion del Odio en Redes Sociales")
     print("="*70)
     
     np.random.seed(RANDOM_SEED)
@@ -94,14 +94,15 @@ def main():
     evaluator.plot_roc_curve(y_test, y_proba)
     
     # Reporte detallado
-    print("\n" + evaluator.get_detailed_report(y_test, y_pred))
+    print("\nReporte de clasificacion orientativo:")
+    print(evaluator.get_detailed_report(y_test, y_pred))
     
     # Análisis de errores
     print("\n[6] Analizando errores...")
     error_report = evaluator.generate_error_report(y_test, y_pred, X_test)
     
     error_summary = error_report['error_type'].value_counts()
-    print("\nResumen de errores:")
+    print("\nResumen de errores de estimacion:")
     print(error_summary)
     
     # Guardar reporte de errores

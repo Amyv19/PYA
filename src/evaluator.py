@@ -1,5 +1,5 @@
 """
-Módulo para evaluación de modelos y análisis de errores
+Modulo para evaluacion de modelos y analisis de errores.
 """
 import numpy as np
 import pandas as pd
@@ -19,7 +19,7 @@ import seaborn as sns
 from pathlib import Path
 
 class ModelEvaluator:
-    """Evalúa rendimiento de modelos de detección de hate speech"""
+    """Evalua rendimiento de modelos de estimacion de riesgo de odio."""
     
     def __init__(self, output_dir: Path = None):
         self.output_dir = output_dir or Path("results")

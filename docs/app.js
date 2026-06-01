@@ -165,9 +165,9 @@ function createSystemState(rawText) {
   const terms = result.hits.length ? result.hits.join(", ") : "sin coincidencias fuertes";
   const categories = result.categories.length ? result.categories.join(", ") : "sin categoria critica";
 
-  if (result.isHate) return { tone: "danger", title: "Alerta: posible odio.", summary: "Detecté ataque dirigido o exclusión.", detail: `Términos: ${terms}. Categorías: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "odio", result.severity] };
-  if (result.isAbusive) return { tone: "warn", title: "Esto parece agresión verbal.", summary: "Hay insultos, pero no suficiente señal de odio directo.", detail: `Términos: ${terms}.`, meta: [`score ${Math.round(result.score * 100)}%`, "agresion verbal", result.severity] };
-  return { tone: "safe", title: "No veo señales fuertes de odio.", summary: "Suena más a queja o desacuerdo.", detail: `Lectura: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "sin odio", result.severity] };
+  if (result.isHate) return { tone: "danger", title: "Probabilidad alta de odio.", summary: "La lectura apunta a ataque dirigido o exclusion.", detail: `Terminos: ${terms}. Categorias: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "odio", result.severity] };
+  if (result.isAbusive) return { tone: "warn", title: "Agresion verbal probable.", summary: "Hay insultos, pero no suficiente senal de odio directo.", detail: `Terminos: ${terms}.`, meta: [`score ${Math.round(result.score * 100)}%`, "agresion verbal", result.severity] };
+  return { tone: "safe", title: "Sin senales fuertes de odio.", summary: "Suena mas a queja o desacuerdo.", detail: `Lectura: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "sin odio", result.severity] };
 }
 
 function renderAnalysis(rawText) {
@@ -193,7 +193,7 @@ function renderTweets(rows) {
   root.innerHTML = rows.map((row) => {
     const result = analyzeText(row.text || "");
     const tone = result.isHate ? "danger" : result.isAbusive ? "warn" : "safe";
-    const copy = result.isHate ? "Se mandaria a revision." : result.isAbusive ? "Se marcaria por agresion." : "No muestra riesgo fuerte.";
+    const copy = result.isHate ? "Se recomendaria revision humana." : result.isAbusive ? "Se marcaria por agresion verbal probable." : "No muestra riesgo fuerte.";
     return `
       <article class="post-card">
         <div class="post-head">
@@ -210,9 +210,9 @@ function renderTweets(rows) {
 function createPhoneAlert(chat) {
   const combined = chat.messages.map((m) => m.text).join(" ");
   const result = analyzeText(combined);
-  if (result.isHate) return { klass: "danger", title: "Alerta fuerte", body: "Hay señales de odio o expulsión. Revisión inmediata." };
-  if (result.isAbusive) return { klass: "warn", title: "Agresión verbal", body: "Hay insultos directos. Se recomendaría bloquear o moderar." };
-  return { klass: "safe", title: "Sin riesgo fuerte", body: "Parece más desacuerdo que ataque." };
+  if (result.isHate) return { klass: "danger", title: "Riesgo alto", body: "Hay senales de odio o exclusion. Conviene revision humana inmediata." };
+  if (result.isAbusive) return { klass: "warn", title: "Agresion verbal", body: "Hay insultos directos. Se recomendaria moderar o revisar." };
+  return { klass: "safe", title: "Sin riesgo fuerte", body: "Parece mas desacuerdo que ataque." };
 }
 
 function renderPhonePicker(activeId) {

@@ -1,54 +1,70 @@
-# Medición de Errores en Detección de Odio en Redes Sociales
+# Cuantificacion del Odio en Redes Sociales
 
-Proyecto para medir y analizar errores en sistemas de detección automática de contenido de odio en plataformas de redes sociales.
+Proyecto para estimar y analizar la probabilidad de contenido de odio en redes sociales. El sistema sirve como herramienta de apoyo: cuantifica riesgo, compara modelos y muestra errores frecuentes, pero no reemplaza la revision humana.
+
+## Alcance
+
+- Estima riesgo a partir de texto y reglas de contexto.
+- No determina de forma definitiva si un mensaje constituye odio.
+- Debe usarse como apoyo para analisis, priorizacion y revision.
 
 ## Estructura del Proyecto
 
-```
+```text
 pyap/
-├── data/                 # Datos del proyecto
-├── src/                  # Código fuente
-│   ├── config.py        # Configuración general
-│   ├── data_loader.py   # Carga y preprocesamiento de datos
-│   ├── preprocessor.py  # Limpieza y normalización de texto
-│   ├── evaluator.py     # Evaluación y análisis de errores
-│   ├── experiments.py   # Gestión de experimentos
-│   └── __init__.py      # Package init
-├── results/             # Resultados y reportes
-├── notebooks/           # Jupyter notebooks
-├── requirements.txt     # Dependencias
-├── main.py             # Script principal
-└── README.md           # Este archivo
+|- data/                 # Datos del proyecto
+|- docs/                 # Version estatica para GitHub Pages
+|- models/               # Modelos guardados
+|- notebooks/            # Jupyter notebooks
+|- results/              # Resultados y reportes
+|- src/                  # Codigo fuente
+|  |- config.py          # Configuracion general
+|  |- data_loader.py     # Carga y preprocesamiento de datos
+|  |- evaluator.py       # Evaluacion y analisis de errores
+|  |- experiments.py     # Gestion de experimentos
+|  |- predictor.py       # Prediccion y reglas de contexto
+|  |- preprocessor.py    # Limpieza y normalizacion de texto
+|- app.py                # Frontend con Streamlit
+|- main.py               # Script principal
+|- fetch_twitter_data.py # Descarga de publicaciones
+`- README.md             # Este archivo
 ```
 
-## Instalación
+## Instalacion
 
-### 1. Clonar o descargar el proyecto
 ```bash
 cd pyap
-```
-
-### 2. Crear entorno virtual (recomendado)
-```bash
 python -m venv venv
-venv\Scripts\activate  # En Windows
-# o
-source venv/bin/activate  # En Linux/Mac
-```
-
-### 3. Instalar dependencias
-```bash
+venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
 ## Uso
 
-### Ejecutar análisis completo
+### Ejecutar analisis completo
+
 ```bash
 python main.py
 ```
 
+Esto:
+
+1. Crea un dataset de ejemplo si no existe.
+2. Preprocesa el texto.
+3. Divide los datos en train, validacion y test.
+4. Entrena multiples modelos.
+5. Genera reportes de evaluacion y analisis de errores.
+
+### Ejecutar la interfaz local
+
+```bash
+streamlit run app.py
+```
+
+La interfaz permite escribir texto para estimar su nivel de riesgo y revisar tweets descargados desde `data/twitter_posts.csv`.
+
 ### Descargar publicaciones desde X/Twitter
+
 1. Crea una app en el portal de desarrolladores de X y obtén tu Bearer Token.
 2. Define la variable de entorno `X_BEARER_TOKEN`.
 3. Ejecuta:
@@ -57,19 +73,14 @@ python main.py
 python fetch_twitter_data.py
 ```
 
-Esto descarga posts recientes según tu consulta y guarda un CSV en `data/twitter_posts.csv`.
+Esto descarga posts recientes segun tu consulta y guarda un CSV en `data/twitter_posts.csv`.
 
-Esto:
-1. Crea un dataset de ejemplo (si no existe)
-2. Preprocesa el texto
-3. Divide los datos en train/val/test
-4. Entrena múltiples modelos
-5. Genera reportes de evaluación y análisis de errores
+## Modulos principales
 
-### Módulos principales
+### DataLoader
 
-#### DataLoader
-Carga y prepara datos de hate speech:
+Carga y prepara datos para cuantificar riesgo de odio:
+
 ```python
 from src.data_loader import DataLoader
 
@@ -78,8 +89,10 @@ df = loader.create_sample_dataset()
 train, val, test = loader.split_data(df)
 ```
 
-#### TextPreprocessor
+### TextPreprocessor
+
 Limpia y normaliza texto:
+
 ```python
 from src.preprocessor import TextPreprocessor
 
@@ -87,8 +100,10 @@ preprocessor = TextPreprocessor()
 clean_df = preprocessor.preprocess_dataframe(df)
 ```
 
-#### ModelEvaluator
-Evalúa modelos y analiza errores:
+### ModelEvaluator
+
+Evalua modelos y analiza errores:
+
 ```python
 from src.evaluator import ModelEvaluator
 
@@ -98,8 +113,10 @@ evaluator.plot_confusion_matrix(y_true, y_pred)
 evaluator.plot_roc_curve(y_true, y_proba)
 ```
 
-#### ExperimentRunner
+### ExperimentRunner
+
 Ejecuta y compara experimentos:
+
 ```python
 from src.experiments import ExperimentRunner
 
@@ -112,99 +129,92 @@ result = runner.run_experiment(
 )
 ```
 
-## Tipos de Análisis
+## Tipos de Analisis
 
-### 1. Métricas de Rendimiento
-- **Accuracy**: Exactitud general del modelo
-- **Precision**: Proporción de predicciones positivas correctas
-- **Recall**: Proporción de casos positivos identificados
-- **F1-Score**: Media armónica de precisión y recall
-- **ROC-AUC**: Área bajo la curva ROC
+### 1. Metricas de Rendimiento
 
-### 2. Análisis de Errores
-- **Falsos Positivos (FP)**: Textos sin odio clasificados como con odio
-- **Falsos Negativos (FN)**: Textos con odio clasificados como sin odio
-- **Verdaderos Positivos (TP)**: Identificaciones correctas de odio
-- **Verdaderos Negativos (TN)**: Rechazo correcto de textos sin odio
+- `accuracy`: exactitud general del modelo.
+- `precision`: proporcion de predicciones positivas correctas.
+- `recall`: proporcion de casos positivos identificados.
+- `f1-score`: equilibrio entre precision y recall.
+- `roc-auc`: area bajo la curva ROC.
+
+### 2. Analisis de Errores
+
+- `FP`: textos marcados con riesgo de odio cuando no deberian escalarse.
+- `FN`: textos con riesgo de odio que el sistema no priorizo.
+- `TP`: casos donde la estimacion coincide con contenido riesgoso.
+- `TN`: casos donde el sistema descarta riesgo de odio correctamente.
 
 ### 3. Visualizaciones
-- Matriz de confusión
-- Curva ROC
-- Comparación de métricas entre modelos
-- Distribución de errores
+
+- Matriz de confusion.
+- Curva ROC.
+- Comparacion de metricas entre modelos.
+- Distribucion de errores.
 
 ## Resultados
 
-Los resultados se guardan en la carpeta `results/`:
-- `confusion_matrix.png` - Matriz de confusión
-- `roc_curve.png` - Curva ROC
-- `metrics_comparison.png` - Comparación de métricas
-- `error_report.csv` - Detalle de cada error
-- `experiments_comparison.csv` - Comparación de experimentos
-- `experiments_log.json` - Registro completo de experimentos
+Los resultados se guardan en `results/`:
+
+- `confusion_matrix.png`
+- `roc_curve.png`
+- `metrics_comparison.png`
+- `error_report.csv`
+- `experiments_comparison.csv`
+- `experiments_log.json`
 
 ## Dataset de Ejemplo
 
-El proyecto genera automáticamente un dataset de ejemplo con:
-- 1000 textos (500 con odio, 500 sin odio)
-- Textos en español
-- Etiquetas binarias: 0 (sin odio), 1 (con odio)
+El proyecto genera automaticamente un dataset con:
 
-Para usar tu propio dataset, coloca un archivo CSV en `data/` con columnas:
-- `text`: El texto a clasificar
-- `label`: 0 o 1
+- 1000 textos.
+- 500 ejemplos con odio y 500 sin odio.
+- Textos en espanol.
+- Etiquetas binarias: `0` para sin odio y `1` para odio.
+
+Para usar tu propio dataset, coloca un CSV en `data/` con columnas:
+
+- `text`: texto a evaluar.
+- `label`: `0` o `1`.
 
 ## Modelos Soportados
 
-1. **Logistic Regression**: Modelo lineal rápido y eficiente
-2. **Random Forest**: Modelo de conjunto robusto
-3. **Naive Bayes**: Modelo probabilístico
+1. Logistic Regression.
+2. Random Forest.
+3. Naive Bayes.
 
-Cada modelo utiliza vectorización TF-IDF de texto.
+Cada modelo utiliza vectorizacion TF-IDF.
 
-## Configuración
+## Configuracion
 
-Modifica `src/config.py` para ajustar:
-- Modelo a usar
-- Tamaño de batch
-- Número de epochs
-- Learning rate
-- Longitud máxima de texto
-- Semilla para reproducibilidad
+Puedes ajustar `src/config.py` para cambiar:
 
-## Próximos Pasos
+- Modelo a usar.
+- Tamano de batch.
+- Numero de epochs.
+- Learning rate.
+- Longitud maxima de texto.
+- Semilla para reproducibilidad.
 
-- [ ] Integrar modelos de transformers (BERT)
-- [ ] Análisis de sesgo del modelo
-- [ ] Validación cruzada
-- [ ] Análisis de importancia de características
-- [ ] Detección de textos ambiguos
-- [ ] Validación con anotadores humanos
+## Proximos Pasos
 
-## Autor
-
-Tu Nombre
-
-## Licencia
-
-MIT
-# PYA
-
-## Frontend
-
-Ejecuta la interfaz local con:
-
-```bash
-streamlit run app.py
-```
-
-El frontend permite escribir texto para clasificarlo y revisar tweets descargados desde `data/twitter_posts.csv`.
+- [ ] Integrar modelos de transformers.
+- [ ] Analisis de sesgo del modelo.
+- [ ] Validacion cruzada.
+- [ ] Analisis de importancia de caracteristicas.
+- [ ] Cuantificacion mas fina de textos ambiguos.
+- [ ] Validacion con anotadores humanos.
 
 ## GitHub Pages
 
-Tambien hay una version estatica en `docs/` para publicar con GitHub Pages.
+Tambien hay una version estatica en `docs/` para publicar con GitHub Pages:
 
 1. En GitHub entra a `Settings > Pages`.
 2. En `Build and deployment`, elige `Deploy from a branch`.
 3. Selecciona la rama `main` y la carpeta `/docs`.
 4. Guarda los cambios y espera la publicacion.
+
+## Licencia
+
+MIT

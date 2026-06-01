@@ -1,101 +1,132 @@
 """
-Módulo para cargar y gestionar datos de hate speech
+Modulo para cargar y gestionar datos de riesgo de odio.
 """
-import pandas as pd
-import numpy as np
 from pathlib import Path
-from typing import Tuple, List
+from typing import Tuple
+
+import numpy as np
+import pandas as pd
 from sklearn.model_selection import train_test_split
 
+
 class DataLoader:
-    """Carga y prepara datos para detección de hate speech"""
-    
+    """Carga y prepara datos para cuantificacion de riesgo de odio."""
+
     def __init__(self, data_dir: Path):
         self.data_dir = data_dir
-    
+
     def load_csv(self, filepath: str) -> pd.DataFrame:
-        """Carga datos desde archivo CSV"""
+        """Carga datos desde archivo CSV."""
         path = self.data_dir / filepath
         return pd.read_csv(path)
-    
+
     def create_sample_dataset(self, filename: str = "sample_data.csv", n_samples: int = 1000):
-        """Crea dataset de ejemplo para demostración"""
+        """Crea un dataset de ejemplo menos repetitivo para la demo."""
         np.random.seed(42)
-        
-        hate_texts = [
+
+        hate_templates = [
             "Eres un idiota y no mereces vivir",
-            "Deberían deportarte del país",
+            "Deberian deportarte del pais",
             "Tu gente es la culpable de todo",
             "Eres una basura humana",
             "Los tuyos son todos criminales",
-            "No mereces derechos",
-            "Debería haber genocidio contra ustedes",
-            "Eres un parásito para la sociedad",
+            "No merecen derechos",
+            "Deberia haber genocidio contra ustedes",
+            "Eres un parasito para la sociedad",
             "Tu raza es inferior",
-            "Maldita sea tu religión"
+            "Maldita sea tu religion",
+            "Asco de inmigrantes, sobran aqui",
+            "Expulsen a esa gente del barrio",
+            "Todos ustedes son una plaga",
+            "No deberian dejar entrar a los musulmanes",
+            "Las feministas arruinan todo, hay que callarlas",
+            "Ojala maten a todos esos maricones",
+            "Esa comunidad da asco y deberia desaparecer",
+            "Los pobres solo sirven para delinquir",
+            "Pinches indios, nunca aprenden",
+            "No quiero ver negros en mi colonia",
+            "Deberian encerrar a esos enfermos",
+            "Tu grupo no vale nada",
+            "Que asco tu orientacion, no deberias existir",
+            "Esa religion es basura y sus fieles tambien",
         ]
-        
-        non_hate_texts = [
-            "Hola, ¿cómo estás?",
+        non_hate_templates = [
+            "Hola, como estas?",
             "Tengo una pregunta sobre el proyecto",
-            "Me gustaría discutir la política",
-            "Creo que deberíamos mejorar la educación",
-            "¿Qué opinas sobre el clima?",
+            "Me gustaria discutir la politica publica",
+            "Creo que deberiamos mejorar la educacion",
+            "Que opinas sobre el clima?",
             "Me encanta este libro",
             "Vamos al cine el viernes",
-            "¿Cuál es tu película favorita?",
+            "Cual es tu pelicula favorita?",
             "Tengo una buena idea para el trabajo",
-            "El cielo está muy bonito hoy"
+            "El cielo esta muy bonito hoy",
+            "No estoy de acuerdo con tu argumento, pero podemos debatirlo",
+            "Ese jugador fue malisimo ayer",
+            "La pelicula estuvo horrible y perdi mi dinero",
+            "Odio madrugar para ir a la oficina",
+            "Que coraje me da el trafico",
+            "Tu propuesta tiene errores y hay que corregirla",
+            "No deberian subir otra vez los impuestos",
+            "Ese servicio fue una basura, pedi reembolso",
+            "Estoy harto de los spoilers",
+            "La comida estaba fria y pesima",
+            "Criticar una ideologia no es atacar personas",
+            "No me gusta esa cancion",
+            "Ese examen estuvo brutal",
+            "La app falla cuando intento iniciar sesion",
         ]
-        
+        suffixes = [
+            "",
+            " de verdad",
+            " siempre",
+            " otra vez",
+            " aqui",
+            " en este pais",
+            " ahora mismo",
+        ]
+
         texts = []
         labels = []
-        
         for _ in range(n_samples // 2):
-            texts.append(np.random.choice(hate_texts))
+            texts.append(f"{np.random.choice(hate_templates)}{np.random.choice(suffixes)}".strip())
             labels.append(1)
-            texts.append(np.random.choice(non_hate_texts))
+            texts.append(f"{np.random.choice(non_hate_templates)}{np.random.choice(suffixes)}".strip())
             labels.append(0)
-        
-        df = pd.DataFrame({
-            'text': texts,
-            'label': labels
-        })
-        
-        # Guardar
+
+        df = pd.DataFrame({"text": texts, "label": labels})
+
         output_path = self.data_dir / filename
         df.to_csv(output_path, index=False)
         print(f"Dataset de ejemplo creado: {output_path}")
-        
         return df
-    
-    def split_data(self, df: pd.DataFrame, 
-                   test_size: float = 0.2, 
-                   val_size: float = 0.1,
-                   random_state: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        """Divide datos en train, validación y test"""
-        
-        # Separar test
+
+    def split_data(
+        self,
+        df: pd.DataFrame,
+        test_size: float = 0.2,
+        val_size: float = 0.1,
+        random_state: int = 42,
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        """Divide datos en train, validacion y test."""
         train_val, test = train_test_split(
-            df, 
+            df,
             test_size=test_size,
             random_state=random_state,
-            stratify=df['label']
+            stratify=df["label"],
         )
-        
-        # Separar validación del train
+
         val_ratio = val_size / (1 - test_size)
         train, val = train_test_split(
             train_val,
             test_size=val_ratio,
             random_state=random_state,
-            stratify=train_val['label']
+            stratify=train_val["label"],
         )
-        
+
         print(f"Train: {len(train)}, Val: {len(val)}, Test: {len(test)}")
-        
         return train, val, test
-    
+
     def get_class_distribution(self, df: pd.DataFrame) -> dict:
-        """Obtiene distribución de clases"""
-        return df['label'].value_counts().to_dict()
+        """Obtiene distribucion de clases."""
+        return df["label"].value_counts().to_dict()

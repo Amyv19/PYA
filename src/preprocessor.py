@@ -2,19 +2,11 @@
 Módulo de preprocesamiento de texto
 """
 import re
-import nltk
 from typing import List
 import pandas as pd
 
 class TextPreprocessor:
-    """Preprocesa texto para detección de hate speech"""
-    
-    def __init__(self):
-        # Descargar recursos de nltk si es necesario
-        try:
-            nltk.data.find('tokenizers/punkt')
-        except LookupError:
-            nltk.download('punkt')
+    """Preprocesa texto para estimar riesgo de odio."""
     
     def clean_text(self, text: str) -> str:
         """Limpia y normaliza texto"""

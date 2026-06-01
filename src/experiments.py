@@ -1,5 +1,5 @@
 """
-Módulo para ejecutar experimentos de detección de hate speech
+Modulo para ejecutar experimentos de cuantificacion de odio.
 """
 import numpy as np
 import pandas as pd

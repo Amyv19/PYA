@@ -1,5 +1,5 @@
 """
-Configuración del proyecto de medición de errores de detección de odio
+Configuracion general del proyecto de cuantificacion de odio.
 """
 import os
 from pathlib import Path
