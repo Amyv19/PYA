@@ -135,6 +135,8 @@ function findMatches(normalized, terms) {
 }
 
 function containsObfuscatedPhrase(text, phrase) {
+  const compact = normalizeText(text).replace(/\s+/g, "");
+  if (compact.includes(phrase)) return true;
   const letters = Array.from(phrase).map((char) => char.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   const pattern = new RegExp(letters.join("[\\W_]*"), "i");
   return pattern.test(text);
@@ -142,6 +144,7 @@ function containsObfuscatedPhrase(text, phrase) {
 
 function analyzeText(text) {
   const normalized = normalizeText(text);
+  const compact = normalized.replace(/\s+/g, "");
   let score = 0.06;
   const hits = [];
   const categories = [];
@@ -163,12 +166,15 @@ function analyzeText(text) {
     categories.push("exclusion");
     hits.push("expulsion_nativista");
   }
-  if (containsObfuscatedPhrase(text, "matate")) {
+  const hasMatate = containsObfuscatedPhrase(text, "matate") || compact.includes("matate");
+  const hasSuicidate = containsObfuscatedPhrase(text, "suicidate") || compact.includes("suicidate");
+
+  if (hasMatate) {
     score = Math.max(score, 0.72);
     categories.push("violencia");
     hits.push("matate");
   }
-  if (containsObfuscatedPhrase(text, "suicidate")) {
+  if (hasSuicidate) {
     score = Math.max(score, 0.76);
     categories.push("violencia");
     hits.push("suicidate");
@@ -178,7 +184,7 @@ function analyzeText(text) {
   if ((text.match(/!/g) || []).length >= 2 && hits.length) score += 0.04;
 
   const cappedScore = Math.min(Math.max(score, 0.02), 0.98);
-  const isHate = cappedScore >= 0.48;
+  const isHate = hasMatate || hasSuicidate || cappedScore >= 0.48;
   const abusiveTerms = ["puta", "puta madre", "puto", "zorra", "naca", "tonta", "tonto", "idiota", "imbecil", "pendeja", "pendejo", "estupida", "estupido", "tarada", "tarado"];
   const isAbusive = !isHate && hits.some((term) => abusiveTerms.includes(term));
   const severity = cappedScore >= 0.78 ? "alto" : cappedScore >= 0.48 ? "medio" : "bajo";
