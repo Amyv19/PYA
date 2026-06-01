@@ -15,10 +15,14 @@
 
   <div class="app-shell">
     <header class="hero">
-      <div class="hero-text">
+      <div class="hero-copy">
         <p class="eyebrow">PYA · análisis contextual</p>
         <h1>Cuantificación del odio en redes sociales</h1>
         <p class="hero-lede">Una interfaz de demostración para estimar riesgo, separar agresión verbal de odio dirigido y priorizar revisión humana sin presentar el resultado como certeza absoluta.</p>
+      </div>
+
+      <div class="hero-visual">
+        <img src="./hero-illustration.svg" alt="Ilustración de una interfaz que compara mensajes, señales de riesgo y lectura contextual.">
       </div>
 
       <nav class="tabbar" aria-label="Modos">
@@ -81,14 +85,21 @@
           <p class="panel-copy">Escribe un mensaje y recibe una lectura breve, probabilística y más fácil de interpretar.</p>
         </div>
 
-        <div class="composer-card">
-          <label class="input-label" for="text-input">Mensaje</label>
-          <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos y deberían expulsarlos."></textarea>
-          <div class="composer-actions">
-            <button id="analyze-btn" class="primary-btn">Analizar</button>
-            <button id="sample-btn" class="ghost-btn">Ejemplo de riesgo</button>
-            <button id="soft-btn" class="ghost-btn">Ejemplo neutral</button>
+        <div class="text-layout">
+          <div class="composer-card">
+            <label class="input-label" for="text-input">Mensaje</label>
+            <textarea id="text-input" placeholder="Ejemplo: Esa gente no merece derechos y deberían expulsarlos."></textarea>
+            <div class="composer-actions">
+              <button id="analyze-btn" class="primary-btn">Analizar</button>
+              <button id="sample-btn" class="ghost-btn">Ejemplo de riesgo</button>
+              <button id="soft-btn" class="ghost-btn">Ejemplo neutral</button>
+            </div>
           </div>
+
+          <aside class="illustration-card">
+            <img src="./text-illustration.svg" alt="Ilustración de un panel de análisis de texto con lectura del sistema y tarjetas de resultado.">
+            <p>La lectura combina patrones lingüísticos, contexto y señales de exclusión para priorizar revisión humana.</p>
+          </aside>
         </div>
 
         <section id="analysis-result" class="analysis-stack">
