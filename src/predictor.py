@@ -49,7 +49,7 @@ class HateSpeechPredictor:
             },
             "violence": {
                 "matar", "maten", "genocidio", "linchar", "exterminar",
-                "desaparecer", "morir", "encerrar",
+                "desaparecer", "morir", "encerrar", "matate", "suicidate",
             },
             "exclusion": {
                 "deportar", "expulsar", "sin derechos", "quitarles derechos",
@@ -68,6 +68,14 @@ class HateSpeechPredictor:
         text = re.sub(r"https?://\S+|www\.\S+", " ", text)
         text = re.sub(r"[^\w\s]", " ", text)
         return re.sub(r"\s+", " ", text).strip()
+
+    def _contains_obfuscated_phrase(self, text: str, phrase: str) -> bool:
+        """Detecta frases aunque tengan simbolos intermedios como m*tate."""
+        letters = [re.escape(ch) for ch in phrase if ch.strip()]
+        if not letters:
+            return False
+        pattern = r"[\W_]*".join(letters)
+        return bool(re.search(pattern, text.lower()))
 
     def _rule_signal(self, text: str) -> Dict[str, object]:
         normalized = self._normalize_for_rules(text)
@@ -89,6 +97,16 @@ class HateSpeechPredictor:
             if term in normalized:
                 score += 0.22
                 hits.append(term)
+
+        if self._contains_obfuscated_phrase(text, "matate"):
+            score += 0.26
+            hits.append("matate")
+            reasons.append("autolesion_explicita")
+
+        if self._contains_obfuscated_phrase(text, "suicidate"):
+            score += 0.30
+            hits.append("suicidate")
+            reasons.append("autolesion_explicita")
         for term in self.lexicon["exclusion"]:
             if term in normalized:
                 score += 0.18

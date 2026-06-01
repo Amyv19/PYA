@@ -18,7 +18,9 @@ const lexicon = {
     { term: "maten", weight: 0.28 },
     { term: "linchar", weight: 0.28 },
     { term: "desaparecer", weight: 0.24 },
-    { term: "morir", weight: 0.18 }
+    { term: "morir", weight: 0.18 },
+    { term: "matate", weight: 0.30 },
+    { term: "suicidate", weight: 0.32 }
   ],
   exclusion: [
     { term: "deport", weight: 0.26 },
@@ -132,6 +134,12 @@ function findMatches(normalized, terms) {
   return terms.filter((entry) => normalized.includes(entry.term));
 }
 
+function containsObfuscatedPhrase(text, phrase) {
+  const letters = Array.from(phrase).map((char) => char.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const pattern = new RegExp(letters.join("[\\W_]*"), "i");
+  return pattern.test(text);
+}
+
 function analyzeText(text) {
   const normalized = normalizeText(text);
   let score = 0.06;
@@ -154,6 +162,16 @@ function analyzeText(text) {
     score += 0.24;
     categories.push("exclusion");
     hits.push("expulsion_nativista");
+  }
+  if (containsObfuscatedPhrase(text, "matate")) {
+    score += 0.30;
+    categories.push("violencia");
+    hits.push("matate");
+  }
+  if (containsObfuscatedPhrase(text, "suicidate")) {
+    score += 0.32;
+    categories.push("violencia");
+    hits.push("suicidate");
   }
   const uppercaseRatio = text ? text.replace(/[^A-ZÁÉÍÓÚÑ]/g, "").length / Math.max(text.replace(/\s+/g, "").length, 1) : 0;
   if (uppercaseRatio > 0.34) score += 0.05;
