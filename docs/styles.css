@@ -112,6 +112,11 @@ body {
   mix-blend-mode: screen;
 }
 
+.hero-visual img {
+  max-height: 320px;
+  object-fit: contain;
+}
+
 .tabbar {
   grid-column: 1 / -1;
   display: flex;
@@ -242,6 +247,17 @@ button:hover {
   grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
   gap: 22px;
   align-items: start;
+}
+
+.illustration-card {
+  align-self: start;
+  overflow: hidden;
+}
+
+.illustration-card img {
+  max-height: 220px;
+  object-fit: contain;
+  margin: 0 auto;
 }
 
 .chat-picker-list,
@@ -547,6 +563,11 @@ textarea:focus {
 
   .phone-screen {
     min-height: 560px;
+  }
+
+  .hero-visual img,
+  .illustration-card img {
+    max-height: none;
   }
 }
 
