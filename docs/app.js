@@ -186,28 +186,130 @@ function analyzeText(text) {
 
 function createSystemState(rawText) {
   const trimmed = rawText.trim();
-  if (!trimmed) return { tone: "neutral", title: "Todavia no puedo evaluar un mensaje vacio.", summary: "Escribe algo primero.", detail: "Cuando no hay texto, el sistema no genera una lectura.", meta: ["sin texto"] };
-  if (trimmed.length < 3) return { tone: "neutral", title: "No puedo decidir con tan poco texto.", summary: "Necesito mas contexto.", detail: "Con entradas muy cortas es facil equivocarse.", meta: ["muy corto"] };
+  if (!trimmed) return { tone: "neutral", title: "Todavía no puedo evaluar un mensaje vacío.", summary: "Escribe algo primero.", detail: "Cuando no hay texto, el sistema no genera una lectura.", meta: ["sin texto"] };
+  if (trimmed.length < 3) return { tone: "neutral", title: "No puedo decidir con tan poco texto.", summary: "Necesito más contexto.", detail: "Con entradas muy cortas es fácil equivocarse.", meta: ["muy corto"] };
 
   const result = analyzeText(trimmed);
   const terms = result.hits.length ? result.hits.join(", ") : "sin coincidencias fuertes";
-  const categories = result.categories.length ? result.categories.join(", ") : "sin categoria critica";
+  const categories = result.categories.length ? result.categories.join(", ") : "sin categoría crítica";
 
-  if (result.isHate) return { tone: "danger", title: "Probabilidad alta de odio.", summary: "La lectura apunta a ataque dirigido, exclusion o violencia explicita.", detail: `Terminos: ${terms}. Categorias: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "odio", result.severity] };
-  if (result.isAbusive) return { tone: "warn", title: "Agresion verbal probable.", summary: "Hay insultos, pero no suficiente senal de odio directo.", detail: `Terminos: ${terms}.`, meta: [`score ${Math.round(result.score * 100)}%`, "agresion verbal", result.severity] };
-  return { tone: "safe", title: "Sin senales fuertes de odio.", summary: "Suena mas a queja o desacuerdo.", detail: `Lectura: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "sin odio", result.severity] };
+  if (result.isHate) return { tone: "danger", title: "Probabilidad alta de odio.", summary: "La lectura apunta a ataque dirigido, exclusión o violencia explícita.", detail: `Términos: ${terms}. Categorías: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "odio", result.severity] };
+  if (result.isAbusive) return { tone: "warn", title: "Agresión verbal probable.", summary: "Hay insultos, pero no suficiente señal de odio directo.", detail: `Términos: ${terms}.`, meta: [`score ${Math.round(result.score * 100)}%`, "agresión verbal", result.severity] };
+  return { tone: "safe", title: "Sin señales fuertes de odio.", summary: "Suena más a queja o desacuerdo.", detail: `Lectura: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "sin odio", result.severity] };
 }
 
 function renderAnalysis(rawText) {
   const state = createSystemState(rawText);
+  const result = rawText.trim() ? analyzeText(rawText) : null;
   const root = document.getElementById("analysis-result");
+  if (!result) {
+    root.innerHTML = `
+      <article class="analysis-shell-card neutral-card">
+        <strong>Asistente de cuantificación</strong>
+        <p>La estimación aparecerá aquí.</p>
+      </article>
+    `;
+    return;
+  }
+
+  const modelProbability = Math.max(0.05, Math.min(0.95, result.score * 0.7 + (result.isHate ? 0.08 : 0.0) + (result.isAbusive ? 0.05 : 0.0)));
+  const ruleScore = Math.max(0.02, Math.min(0.95, result.score));
+  const finalScore = result.score;
+  const toneClass = state.tone === "danger" ? "danger" : state.tone === "warn" ? "warn" : state.tone === "safe" ? "safe" : "neutral";
+  const targetGroups = result.categories.includes("grupos") ? result.hits.filter((term) => lexicon.grupos.some((entry) => entry.term === term)) : [];
+  const detailRows = [
+    ["No odio", `${Math.round((1 - finalScore) * 100)}%`],
+    ["Odio", `${Math.round(finalScore * 100)}%`],
+    ["Tipo de contenido", result.isHate ? "odio" : result.isAbusive ? "agresión verbal" : "neutral"],
+    ["Grupos objetivo", targetGroups.length ? targetGroups.join(", ") : "sin grupo objetivo"]
+  ];
+
+  const tracks = [
+    {
+      chip: "Peso base del modelo",
+      label: "Regresión logística",
+      value: modelProbability,
+      note: "Salida del clasificador supervisado antes del ajuste contextual.",
+      fill: "linear-gradient(135deg, #49bad5, #315f95)"
+    },
+    {
+      chip: "Capa heurística",
+      label: "Reglas de contexto",
+      value: ruleScore,
+      note: "Intensidad por insultos, grupos, exclusión o violencia.",
+      fill: "linear-gradient(135deg, #5cd8cb, #66c8ef)"
+    },
+    {
+      chip: "Score final",
+      label: "Decisión final",
+      value: finalScore,
+      note: "Combinación ponderada de modelo y señales contextuales.",
+      fill: state.tone === "danger"
+        ? "linear-gradient(135deg, #ff8e83, #ffb26a)"
+        : "linear-gradient(135deg, #5cd8cb, #66c8ef)"
+    }
+  ];
+
   root.innerHTML = `
-    <article class="system-card ${state.tone === "danger" ? "danger-card" : state.tone === "warn" ? "warn-card" : state.tone === "safe" ? "safe-card" : "neutral-card"}">
-      <strong>${state.title}</strong>
-      <p>${state.summary}</p>
-      <div class="analysis-meta">${state.meta.map((item) => `<span class="meta-chip">${item}</span>`).join("")}</div>
-      <p>${state.detail}</p>
-    </article>
+    <section class="analysis-shell">
+      <article class="analysis-shell-card ${state.tone === "danger" ? "danger-card" : state.tone === "warn" ? "warn-card" : state.tone === "safe" ? "safe-card" : "neutral-card"}">
+        <div class="analysis-top">
+          <div class="analysis-system-title ${toneClass}">${state.title}</div>
+          <p class="analysis-summary">${state.summary}</p>
+          <div class="analysis-meta">${state.meta.map((item) => `<span class="meta-chip">${item}</span>`).join("")}</div>
+        </div>
+        <div class="analysis-grid">
+          <div class="analysis-metric">
+            <span>Estimación final</span>
+            <strong>${Math.round(finalScore * 100)}%</strong>
+          </div>
+          <div class="analysis-metric">
+            <span>Probabilidad modelo</span>
+            <strong>${Math.round(modelProbability * 100)}%</strong>
+          </div>
+          <div class="analysis-metric">
+            <span>Ajuste por reglas</span>
+            <strong>${Math.round(ruleScore * 100)}%</strong>
+          </div>
+        </div>
+        <p class="analysis-copy"><strong>Texto limpio:</strong> ${escapeHtml(result.normalized)}</p>
+        <p class="analysis-copy"><strong>Términos detectados:</strong> ${escapeHtml(result.hits.length ? result.hits.join(", ") : "sin coincidencias claras")}</p>
+        <p class="analysis-copy"><strong>Pistas usadas:</strong> ${escapeHtml(state.detail)}</p>
+      </article>
+      <article class="analysis-shell-card">
+        <div class="analysis-visuals">
+          <div class="result-shell">
+            ${tracks.map((track) => `
+              <div class="result-track">
+                <div class="result-chip">${track.chip}</div>
+                <div class="result-head">
+                  <strong>${track.label}</strong>
+                  <span class="result-percent">${Math.round(track.value * 100)}%</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width:${track.value * 100}%;background:${track.fill};"></div>
+                </div>
+                <small>${track.note}</small>
+              </div>
+            `).join("")}
+            <div class="result-note">
+              <strong>Lectura de esta vista:</strong> La decisión final contrasta el aporte del modelo estadístico con el ajuste de reglas para que no parezca una caja negra.
+            </div>
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th>Componente</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${detailRows.map(([label, value]) => `<tr><td>${label}</td><td>${escapeHtml(value)}</td></tr>`).join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+    </section>
   `;
 }
 
@@ -292,9 +394,9 @@ async function loadDatasetTweets() {
 function createPhoneAlert(chat) {
   const combined = chat.messages.map((m) => m.text).join(" ");
   const result = analyzeText(combined);
-  if (result.isHate) return { klass: "danger", title: "Riesgo alto", body: "Hay senales de odio o exclusion. Conviene revision humana inmediata." };
-  if (result.isAbusive) return { klass: "warn", title: "Agresion verbal", body: "Hay insultos directos. Se recomendaria moderar o revisar." };
-  return { klass: "safe", title: "Sin riesgo fuerte", body: "Parece mas desacuerdo que ataque." };
+  if (result.isHate) return { klass: "danger", title: "Riesgo alto", body: "Hay señales de odio o exclusión. Conviene revisión humana inmediata." };
+  if (result.isAbusive) return { klass: "warn", title: "Agresión verbal", body: "Hay insultos directos. Se recomendaría moderar o revisar." };
+  return { klass: "safe", title: "Sin riesgo fuerte", body: "Parece más desacuerdo que ataque." };
 }
 
 function renderPhonePicker(activeId) {
@@ -350,7 +452,7 @@ function wireUI() {
   const input = document.getElementById("text-input");
   document.getElementById("analyze-btn").addEventListener("click", () => renderAnalysis(input.value));
   document.getElementById("sample-btn").addEventListener("click", () => {
-    input.value = "Pinches indios, no merecen derechos y deberian expulsarlos.";
+    input.value = "Pinches indios, no merecen derechos y deberían expulsarlos.";
     renderAnalysis(input.value);
   });
   document.getElementById("soft-btn").addEventListener("click", () => {

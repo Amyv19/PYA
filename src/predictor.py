@@ -46,6 +46,7 @@ class HateSpeechPredictor:
                 "tonta", "tonto", "idiota", "imbecil", "pendeja", "pendejo",
                 "estupida", "estupido", "tarada", "tarado", "basura",
                 "cabron", "cabrona", "asquerosa", "asqueroso",
+                "gorda", "gordo",
             },
             "violence": {
                 "matar", "maten", "genocidio", "linchar", "exterminar",
@@ -71,6 +72,15 @@ class HateSpeechPredictor:
 
     def _contains_obfuscated_phrase(self, text: str, phrase: str) -> bool:
         """Detecta frases aunque tengan simbolos intermedios como m*tate."""
+        compact = self._normalize_for_rules(text).replace(" ", "")
+        if phrase in compact:
+            return True
+        special_patterns = {
+            "matate": r"m[\W_]*[a4@*]?[\W_]*t[\W_]*a[\W_]*t[\W_]*e",
+            "suicidate": r"s[\W_]*u[\W_]*i[\W_]*c[\W_]*i[\W_]*d[\W_]*[a4@*]?[\W_]*t[\W_]*e",
+        }
+        if phrase in special_patterns and re.search(special_patterns[phrase], text.lower()):
+            return True
         letters = [re.escape(ch) for ch in phrase if ch.strip()]
         if not letters:
             return False
@@ -116,6 +126,11 @@ class HateSpeechPredictor:
             score += 0.24
             hits.append("expulsion_nativista")
             reasons.append("expulsion_nativista")
+
+        if re.search(r"\b(esa gente|ellos|ellas|ustedes|tu gente)\b.*\b(no merece[n]? derechos|sin derechos|quitarles derechos)\b", normalized):
+            score = max(score, 0.68)
+            hits.append("exclusion_dirigida")
+            reasons.append("exclusion_dirigida")
 
         targets = [term for term in self.lexicon["target_groups"] if term in normalized]
         if targets:
@@ -182,9 +197,20 @@ class HateSpeechPredictor:
         confidence = float(max(hate_score, 1 - hate_score))
         has_abuse = bool(rules["abuse_hits"])
         has_targets = bool(rules["targets"])
-        has_hate_markers = bool(has_targets or rules["score"] >= 0.35)
+        has_self_harm = any(term in rules["hits"] for term in {"matate", "suicidate"})
+        has_hate_markers = bool(has_targets or rules["score"] >= 0.35 or has_self_harm)
 
-        if pred == 1 and has_hate_markers:
+        if has_self_harm:
+            content_type = "odio"
+            pred = 1
+            hate_score = max(hate_score, 0.72)
+            confidence = float(max(hate_score, 1 - hate_score))
+        elif has_abuse and not has_targets and rules["score"] < 0.35:
+            content_type = "agresion_verbal"
+            pred = 0
+            hate_score = min(hate_score, 0.42)
+            confidence = float(max(hate_score, 1 - hate_score))
+        elif pred == 1 and has_hate_markers:
             content_type = "odio"
         elif has_abuse:
             content_type = "agresion_verbal"

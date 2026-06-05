@@ -1,27 +1,74 @@
-# Cuantificacion del Odio en Redes Sociales
+# Cuantificación del Odio en Redes Sociales
 
-Proyecto para estimar y analizar la probabilidad de contenido de odio en redes sociales. El sistema adopta un enfoque hibrido: combina un clasificador supervisado basado en TF-IDF con reglas lexicas y de contexto para apoyar la interpretacion de casos sensibles. Su salida debe entenderse como una herramienta de apoyo y no como una decision automatica definitiva.
+Proyecto para estimar y analizar la probabilidad de contenido de odio en redes sociales. El sistema adopta un enfoque híbrido: combina un clasificador supervisado basado en TF-IDF con reglas léxicas y de contexto para apoyar la interpretación de casos sensibles. Su salida debe entenderse como una herramienta de apoyo y no como una decisión automática definitiva.
+
+## Qué se entrega
+
+Este repositorio contiene tres piezas:
+
+1. `app.py`
+   Interfaz funcional local con Streamlit.
+2. `src/`
+   Motor del análisis híbrido (`TF-IDF + regresión logística + reglas de contexto`).
+3. `docs/`
+   Maqueta pública para GitHub Pages.
+
+## Qué mostrar en la entrega
+
+1. Un ejemplo `neutral`.
+2. Un ejemplo de `agresión verbal`.
+3. Un ejemplo de `odio`.
+4. La diferencia entre:
+   - versión funcional local (`streamlit run app.py`)
+   - demo pública (`docs/` en GitHub Pages)
+
+## Instrucciones rápidas
+
+### Ejecutar la versión funcional local
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+### Abrir la demo pública localmente
+
+```bash
+cd docs
+python -m http.server 8000
+```
+
+Luego abre:
+
+- `http://localhost:8501` para la app local
+- `http://localhost:8000` para la demo estática
+
+## Qué decir si preguntan por GitHub Pages
+
+- `GitHub Pages` solo muestra la maqueta o demo interactiva.
+- La ejecución funcional real del sistema corre en local con Streamlit.
+- La demo pública sirve para presentar interfaz, flujo y lógica general del análisis.
 
 ## Alcance
 
-- Estima riesgo con una arquitectura hibrida de modelo supervisado mas reglas de contexto.
+- Estima riesgo con una arquitectura híbrida de modelo supervisado más reglas de contexto.
 - No determina de forma definitiva si un mensaje constituye odio.
-- Debe usarse como apoyo para analisis, priorizacion y revision.
+- Debe usarse como apoyo para análisis, priorización y revisión.
 
-## Enfoque Metodologico
+## Enfoque Metodológico
 
-La propuesta no depende exclusivamente de aprendizaje automatico ni exclusivamente de reglas. La arquitectura combina:
+La propuesta no depende exclusivamente de aprendizaje automático ni exclusivamente de reglas. La arquitectura combina:
 
-- un componente estadistico basado en TF-IDF y clasificacion supervisada, que aporta capacidad de generalizacion ante frases no vistas;
-- un componente de reglas lexicas y de contexto, que ayuda a distinguir agresion verbal, exclusion y odio identitario en casos ambiguos o criticos.
+- un componente estadístico basado en TF-IDF y clasificación supervisada, que aporta capacidad de generalización ante frases no vistas;
+- un componente de reglas léxicas y de contexto, que ayuda a distinguir agresión verbal, exclusión y odio identitario en casos ambiguos o críticos.
 
-Esta combinacion mejora la interpretabilidad del sistema y mantiene coherencia con el objetivo del proyecto: cuantificar riesgo sin perder control contextual sobre mensajes sensibles.
+Esta combinación mejora la interpretabilidad del sistema y mantiene coherencia con el objetivo del proyecto: cuantificar riesgo sin perder control contextual sobre mensajes sensibles.
 
-En la implementacion actual, la puntuacion final mezcla ambos componentes con una ponderacion fija de 70/30 entre modelo y reglas. Esa proporcion funciona como decision de diseno inicial y debe entenderse como un parametro ajustable en futuras iteraciones.
+En la implementación actual, la puntuación final mezcla ambos componentes con una ponderación fija de 70/30 entre modelo y reglas. Esa proporción funciona como decisión de diseño inicial y debe entenderse como un parámetro ajustable en futuras iteraciones.
 
-## Limitacion Actual
+## Limitación Actual
 
-Aunque la arquitectura hibrida es defendible metodologicamente, el rendimiento real del componente de aprendizaje automatico depende de la calidad y diversidad del corpus de entrenamiento. Si el conjunto de datos es demasiado sintetico o poco variado, el modelo pierde capacidad de generalizacion y el peso practico del sistema recae sobre las reglas heuristicas.
+Aunque la arquitectura híbrida es defendible metodológicamente, el rendimiento real del componente de aprendizaje automático depende de la calidad y diversidad del corpus de entrenamiento. Si el conjunto de datos es demasiado sintético o poco variado, el modelo pierde capacidad de generalización y el peso práctico del sistema recae sobre las reglas heurísticas.
 
 ## Estructura del Proyecto
 
