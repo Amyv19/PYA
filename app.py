@@ -132,8 +132,8 @@ st.markdown(
         <p class="hero-kicker">PYA · revision contextual</p>
         <h1 class="hero-title">Radar de discurso y riesgo</h1>
         <p class="hero-copy">
-            Esta version mezcla modelo y reglas de contexto para estimar riesgo de odio
-            sin tratar cualquier insulto como una confirmacion automatica. La lectura sigue siendo orientativa y debe revisarse con criterio humano.
+            Esta version usa un enfoque hibrido: combina un clasificador TF-IDF
+            con reglas de contexto para estimar riesgo de odio sin tratar cualquier insulto como una confirmacion automatica. La lectura sigue siendo orientativa y debe revisarse con criterio humano.
         </p>
     </div>
     """,
@@ -250,4 +250,4 @@ with right_col:
         st.info("Todavia no existe data/twitter_posts.csv. Ejecuta python fetch_twitter_data.py.")
     st.markdown("</div>", unsafe_allow_html=True)
 
-st.caption("Frontend local con Streamlit usando una demo hibrida: clasificador TF-IDF mas reglas de contexto. Su lectura es orientativa, no definitiva.")
+st.caption("Frontend local con Streamlit usando una arquitectura hibrida: clasificador TF-IDF mas reglas de contexto. Su lectura es orientativa, no definitiva.")

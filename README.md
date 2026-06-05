@@ -1,12 +1,27 @@
 # Cuantificacion del Odio en Redes Sociales
 
-Proyecto para estimar y analizar la probabilidad de contenido de odio en redes sociales. El sistema sirve como herramienta de apoyo: cuantifica riesgo, compara modelos y muestra errores frecuentes, pero no reemplaza la revision humana.
+Proyecto para estimar y analizar la probabilidad de contenido de odio en redes sociales. El sistema adopta un enfoque hibrido: combina un clasificador supervisado basado en TF-IDF con reglas lexicas y de contexto para apoyar la interpretacion de casos sensibles. Su salida debe entenderse como una herramienta de apoyo y no como una decision automatica definitiva.
 
 ## Alcance
 
-- Estima riesgo a partir de texto y reglas de contexto.
+- Estima riesgo con una arquitectura hibrida de modelo supervisado mas reglas de contexto.
 - No determina de forma definitiva si un mensaje constituye odio.
 - Debe usarse como apoyo para analisis, priorizacion y revision.
+
+## Enfoque Metodologico
+
+La propuesta no depende exclusivamente de aprendizaje automatico ni exclusivamente de reglas. La arquitectura combina:
+
+- un componente estadistico basado en TF-IDF y clasificacion supervisada, que aporta capacidad de generalizacion ante frases no vistas;
+- un componente de reglas lexicas y de contexto, que ayuda a distinguir agresion verbal, exclusion y odio identitario en casos ambiguos o criticos.
+
+Esta combinacion mejora la interpretabilidad del sistema y mantiene coherencia con el objetivo del proyecto: cuantificar riesgo sin perder control contextual sobre mensajes sensibles.
+
+En la implementacion actual, la puntuacion final mezcla ambos componentes con una ponderacion fija de 70/30 entre modelo y reglas. Esa proporcion funciona como decision de diseno inicial y debe entenderse como un parametro ajustable en futuras iteraciones.
+
+## Limitacion Actual
+
+Aunque la arquitectura hibrida es defendible metodologicamente, el rendimiento real del componente de aprendizaje automatico depende de la calidad y diversidad del corpus de entrenamiento. Si el conjunto de datos es demasiado sintetico o poco variado, el modelo pierde capacidad de generalizacion y el peso practico del sistema recae sobre las reglas heuristicas.
 
 ## Estructura del Proyecto
 
