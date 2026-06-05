@@ -113,23 +113,11 @@ const phoneChats = [
 let datasetTweets = [...fallbackTweets];
 
 function normalizeText(text) {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/https?:\/\/\S+/g, "")
-    .replace(/[^\w\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/https?:\/\/\S+/g, "").replace(/[^\w\s]/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function escapeHtml(text) {
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+  return String(text).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 }
 
 function findMatches(normalized, terms) {
@@ -198,57 +186,16 @@ function analyzeText(text) {
 
 function createSystemState(rawText) {
   const trimmed = rawText.trim();
-  if (!trimmed) {
-    return {
-      tone: "neutral",
-      title: "Todavia no puedo evaluar un mensaje vacio.",
-      summary: "Escribe algo primero.",
-      detail: "Cuando no hay texto, el sistema no genera una lectura.",
-      meta: ["sin texto"]
-    };
-  }
-
-  if (trimmed.length < 3) {
-    return {
-      tone: "neutral",
-      title: "No puedo decidir con tan poco texto.",
-      summary: "Necesito mas contexto.",
-      detail: "Con entradas muy cortas es facil equivocarse.",
-      meta: ["muy corto"]
-    };
-  }
+  if (!trimmed) return { tone: "neutral", title: "Todavia no puedo evaluar un mensaje vacio.", summary: "Escribe algo primero.", detail: "Cuando no hay texto, el sistema no genera una lectura.", meta: ["sin texto"] };
+  if (trimmed.length < 3) return { tone: "neutral", title: "No puedo decidir con tan poco texto.", summary: "Necesito mas contexto.", detail: "Con entradas muy cortas es facil equivocarse.", meta: ["muy corto"] };
 
   const result = analyzeText(trimmed);
   const terms = result.hits.length ? result.hits.join(", ") : "sin coincidencias fuertes";
   const categories = result.categories.length ? result.categories.join(", ") : "sin categoria critica";
 
-  if (result.isHate) {
-    return {
-      tone: "danger",
-      title: "Probabilidad alta de odio.",
-      summary: "La lectura apunta a ataque dirigido, exclusion o violencia explicita.",
-      detail: `Terminos: ${terms}. Categorias: ${categories}.`,
-      meta: [`score ${Math.round(result.score * 100)}%`, "odio", result.severity]
-    };
-  }
-
-  if (result.isAbusive) {
-    return {
-      tone: "warn",
-      title: "Agresion verbal probable.",
-      summary: "Hay insultos, pero no suficiente senal de odio directo.",
-      detail: `Terminos: ${terms}.`,
-      meta: [`score ${Math.round(result.score * 100)}%`, "agresion verbal", result.severity]
-    };
-  }
-
-  return {
-    tone: "safe",
-    title: "Sin senales fuertes de odio.",
-    summary: "Suena mas a queja o desacuerdo.",
-    detail: `Lectura: ${categories}.`,
-    meta: [`score ${Math.round(result.score * 100)}%`, "sin odio", result.severity]
-  };
+  if (result.isHate) return { tone: "danger", title: "Probabilidad alta de odio.", summary: "La lectura apunta a ataque dirigido, exclusion o violencia explicita.", detail: `Terminos: ${terms}. Categorias: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "odio", result.severity] };
+  if (result.isAbusive) return { tone: "warn", title: "Agresion verbal probable.", summary: "Hay insultos, pero no suficiente senal de odio directo.", detail: `Terminos: ${terms}.`, meta: [`score ${Math.round(result.score * 100)}%`, "agresion verbal", result.severity] };
+  return { tone: "safe", title: "Sin senales fuertes de odio.", summary: "Suena mas a queja o desacuerdo.", detail: `Lectura: ${categories}.`, meta: [`score ${Math.round(result.score * 100)}%`, "sin odio", result.severity] };
 }
 
 function renderAnalysis(rawText) {
@@ -266,13 +213,7 @@ function renderAnalysis(rawText) {
 
 function renderKeywords() {
   const root = document.getElementById("keyword-list");
-  root.innerHTML = [
-    "Ataques a grupos o identidades",
-    "Expulsion y exclusion",
-    "Violencia explicita",
-    "Insulto sin contexto identitario",
-    "Critica comun o desacuerdo"
-  ].map((item) => `<li>${item}</li>`).join("");
+  root.innerHTML = ["Ataques a grupos o identidades", "Expulsion y exclusion", "Violencia explicita", "Insulto sin contexto identitario", "Critica comun o desacuerdo"].map((item) => `<li>${item}</li>`).join("");
 }
 
 function renderTweets(rows) {
@@ -280,12 +221,7 @@ function renderTweets(rows) {
   root.innerHTML = rows.map((row) => {
     const result = analyzeText(row.text || "");
     const tone = result.isHate ? "danger" : result.isAbusive ? "warn" : "safe";
-    const copy = result.isHate
-      ? "Se recomendaria revision humana."
-      : result.isAbusive
-        ? "Se marcaria como agresion verbal probable."
-        : "No muestra riesgo fuerte.";
-
+    const copy = result.isHate ? "Se recomendaria revision humana." : result.isAbusive ? "Se marcaria como agresion verbal probable." : "No muestra riesgo fuerte.";
     return `
       <article class="post-card">
         <div class="post-head">
@@ -297,6 +233,49 @@ function renderTweets(rows) {
       </article>
     `;
   }).join("");
+}
+
+function renderBarChart(rootId, rows, formatter = (value) => value) {
+  const root = document.getElementById(rootId);
+  if (!root) return;
+  const maxValue = Math.max(...rows.map((row) => row.value), 1);
+  root.innerHTML = rows.map((row) => `
+    <div class="bar-row">
+      <div class="bar-meta">
+        <span>${escapeHtml(row.label)}</span>
+        <span class="bar-value">${escapeHtml(formatter(row.value))}</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${(row.value / maxValue) * 100}%"></div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderCharts(rows) {
+  const analyzed = rows.map((row) => analyzeText(row.text || ""));
+  const distribution = {
+    odio: analyzed.filter((row) => row.isHate).length,
+    agresion: analyzed.filter((row) => !row.isHate && row.isAbusive).length,
+    neutral: analyzed.filter((row) => !row.isHate && !row.isAbusive).length
+  };
+
+  const signalCounts = {};
+  analyzed.forEach((row) => {
+    row.hits.forEach((hit) => {
+      signalCounts[hit] = (signalCounts[hit] || 0) + 1;
+    });
+  });
+
+  const topSignals = Object.entries(signalCounts).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([label, value]) => ({ label, value }));
+
+  renderBarChart("chart-distribution", [
+    { label: "Riesgo alto", value: distribution.odio },
+    { label: "Agresion verbal", value: distribution.agresion },
+    { label: "Sin riesgo fuerte", value: distribution.neutral }
+  ], (value) => `${value} textos`);
+
+  renderBarChart("chart-signals", topSignals.length ? topSignals : [{ label: "sin coincidencias", value: 0 }], (value) => `${value} apariciones`);
 }
 
 async function loadDatasetTweets() {
@@ -313,15 +292,8 @@ async function loadDatasetTweets() {
 function createPhoneAlert(chat) {
   const combined = chat.messages.map((m) => m.text).join(" ");
   const result = analyzeText(combined);
-
-  if (result.isHate) {
-    return { klass: "danger", title: "Riesgo alto", body: "Hay senales de odio o exclusion. Conviene revision humana inmediata." };
-  }
-
-  if (result.isAbusive) {
-    return { klass: "warn", title: "Agresion verbal", body: "Hay insultos directos. Se recomendaria moderar o revisar." };
-  }
-
+  if (result.isHate) return { klass: "danger", title: "Riesgo alto", body: "Hay senales de odio o exclusion. Conviene revision humana inmediata." };
+  if (result.isAbusive) return { klass: "warn", title: "Agresion verbal", body: "Hay insultos directos. Se recomendaria moderar o revisar." };
   return { klass: "safe", title: "Sin riesgo fuerte", body: "Parece mas desacuerdo que ataque." };
 }
 
@@ -333,7 +305,6 @@ function renderPhonePicker(activeId) {
       <span>${escapeHtml(chat.preview)}</span>
     </button>
   `).join("");
-
   root.querySelectorAll("[data-chat-id]").forEach((button) => {
     button.addEventListener("click", () => renderPhoneChat(button.getAttribute("data-chat-id")));
   });
@@ -365,7 +336,6 @@ function wireTabs() {
     text: document.getElementById("panel-text"),
     feed: document.getElementById("panel-feed")
   };
-
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       tabs.forEach((item) => item.classList.remove("active"));
@@ -395,6 +365,7 @@ async function boot() {
   renderAnalysis("");
   renderPhoneChat(phoneChats[0].id);
   renderTweets(datasetTweets);
+  renderCharts(datasetTweets);
   wireTabs();
   wireUI();
 }
