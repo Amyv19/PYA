@@ -70,21 +70,21 @@ const lexicon = {
   ]
 };
 
-const sampleTweets = [
+const fallbackTweets = [
   { user: "lucia.design", handle: "@lucia", text: "No estoy de acuerdo con tu argumento, pero podemos debatirlo." },
   { user: "foro.vecinal", handle: "@foro", text: "Pinches indios, nunca aprenden." },
-  { user: "cinefilo_88", handle: "@cinefilo", text: "La película estuvo horrible y perdí mi dinero." },
-  { user: "alerta_social", handle: "@alerta", text: "Esa gente no merece derechos y deberían expulsarlos." }
+  { user: "cinefilo_88", handle: "@cinefilo", text: "La pelicula estuvo horrible y perdi mi dinero." },
+  { user: "alerta_social", handle: "@alerta", text: "Esa gente no merece derechos y deberian expulsarlos." }
 ];
 
 const phoneChats = [
   {
     id: "chat-1",
     name: "Grupo escolar",
-    preview: "Puta naca, vete a tu país",
+    preview: "Puta naca, vete a tu pais",
     messages: [
       { from: "other", text: "Nadie te quiere en el grupo." },
-      { from: "other", text: "Puta naca, vete a tu país." },
+      { from: "other", text: "Puta naca, vete a tu pais." },
       { from: "me", text: "Ya paren." }
     ]
   },
@@ -93,9 +93,9 @@ const phoneChats = [
     name: "Chat de trabajo",
     preview: "Eres una idiota",
     messages: [
-      { from: "other", text: "Tu reporte salió mal otra vez." },
+      { from: "other", text: "Tu reporte salio mal otra vez." },
       { from: "other", text: "Eres una idiota, no entiendes nada." },
-      { from: "me", text: "No me hables así." }
+      { from: "me", text: "No me hables asi." }
     ]
   },
   {
@@ -109,6 +109,8 @@ const phoneChats = [
     ]
   }
 ];
+
+let datasetTweets = [...fallbackTweets];
 
 function normalizeText(text) {
   return text
@@ -166,6 +168,7 @@ function analyzeText(text) {
     categories.push("exclusion");
     hits.push("expulsion_nativista");
   }
+
   const hasMatate = containsObfuscatedPhrase(text, "matate") || compact.includes("matate");
   const hasSuicidate = containsObfuscatedPhrase(text, "suicidate") || compact.includes("suicidate");
 
@@ -179,6 +182,7 @@ function analyzeText(text) {
     categories.push("violencia");
     hits.push("suicidate");
   }
+
   const uppercaseRatio = text ? text.replace(/[^A-ZÁÉÍÓÚÑ]/g, "").length / Math.max(text.replace(/\s+/g, "").length, 1) : 0;
   if (uppercaseRatio > 0.34) score += 0.05;
   if ((text.match(/!/g) || []).length >= 2 && hits.length) score += 0.04;
@@ -197,7 +201,7 @@ function createSystemState(rawText) {
   if (!trimmed) {
     return {
       tone: "neutral",
-      title: "Todavía no puedo evaluar un mensaje vacío.",
+      title: "Todavia no puedo evaluar un mensaje vacio.",
       summary: "Escribe algo primero.",
       detail: "Cuando no hay texto, el sistema no genera una lectura.",
       meta: ["sin texto"]
@@ -208,22 +212,22 @@ function createSystemState(rawText) {
     return {
       tone: "neutral",
       title: "No puedo decidir con tan poco texto.",
-      summary: "Necesito más contexto.",
-      detail: "Con entradas muy cortas es fácil equivocarse.",
+      summary: "Necesito mas contexto.",
+      detail: "Con entradas muy cortas es facil equivocarse.",
       meta: ["muy corto"]
     };
   }
 
   const result = analyzeText(trimmed);
   const terms = result.hits.length ? result.hits.join(", ") : "sin coincidencias fuertes";
-  const categories = result.categories.length ? result.categories.join(", ") : "sin categoría crítica";
+  const categories = result.categories.length ? result.categories.join(", ") : "sin categoria critica";
 
   if (result.isHate) {
     return {
       tone: "danger",
       title: "Probabilidad alta de odio.",
-      summary: "La lectura apunta a ataque dirigido o exclusión.",
-      detail: `Términos: ${terms}. Categorías: ${categories}.`,
+      summary: "La lectura apunta a ataque dirigido, exclusion o violencia explicita.",
+      detail: `Terminos: ${terms}. Categorias: ${categories}.`,
       meta: [`score ${Math.round(result.score * 100)}%`, "odio", result.severity]
     };
   }
@@ -231,17 +235,17 @@ function createSystemState(rawText) {
   if (result.isAbusive) {
     return {
       tone: "warn",
-      title: "Agresión verbal probable.",
-      summary: "Hay insultos, pero no suficiente señal de odio directo.",
-      detail: `Términos: ${terms}.`,
-      meta: [`score ${Math.round(result.score * 100)}%`, "agresión verbal", result.severity]
+      title: "Agresion verbal probable.",
+      summary: "Hay insultos, pero no suficiente senal de odio directo.",
+      detail: `Terminos: ${terms}.`,
+      meta: [`score ${Math.round(result.score * 100)}%`, "agresion verbal", result.severity]
     };
   }
 
   return {
     tone: "safe",
-    title: "Sin señales fuertes de odio.",
-    summary: "Suena más a queja o desacuerdo.",
+    title: "Sin senales fuertes de odio.",
+    summary: "Suena mas a queja o desacuerdo.",
     detail: `Lectura: ${categories}.`,
     meta: [`score ${Math.round(result.score * 100)}%`, "sin odio", result.severity]
   };
@@ -264,10 +268,10 @@ function renderKeywords() {
   const root = document.getElementById("keyword-list");
   root.innerHTML = [
     "Ataques a grupos o identidades",
-    "Expulsión y exclusión",
-    "Violencia explícita",
+    "Expulsion y exclusion",
+    "Violencia explicita",
     "Insulto sin contexto identitario",
-    "Crítica común o desacuerdo"
+    "Critica comun o desacuerdo"
   ].map((item) => `<li>${item}</li>`).join("");
 }
 
@@ -277,9 +281,9 @@ function renderTweets(rows) {
     const result = analyzeText(row.text || "");
     const tone = result.isHate ? "danger" : result.isAbusive ? "warn" : "safe";
     const copy = result.isHate
-      ? "Se recomendaría revisión humana."
+      ? "Se recomendaria revision humana."
       : result.isAbusive
-        ? "Se marcaría como agresión verbal probable."
+        ? "Se marcaria como agresion verbal probable."
         : "No muestra riesgo fuerte.";
 
     return `
@@ -295,19 +299,30 @@ function renderTweets(rows) {
   }).join("");
 }
 
+async function loadDatasetTweets() {
+  try {
+    const response = await fetch("./dataset-demo.json", { cache: "no-store" });
+    if (!response.ok) throw new Error(`dataset status ${response.status}`);
+    const rows = await response.json();
+    if (Array.isArray(rows) && rows.length) datasetTweets = rows.slice(0, 24);
+  } catch (_error) {
+    datasetTweets = [...fallbackTweets];
+  }
+}
+
 function createPhoneAlert(chat) {
   const combined = chat.messages.map((m) => m.text).join(" ");
   const result = analyzeText(combined);
 
   if (result.isHate) {
-    return { klass: "danger", title: "Riesgo alto", body: "Hay señales de odio o exclusión. Conviene revisión humana inmediata." };
+    return { klass: "danger", title: "Riesgo alto", body: "Hay senales de odio o exclusion. Conviene revision humana inmediata." };
   }
 
   if (result.isAbusive) {
-    return { klass: "warn", title: "Agresión verbal", body: "Hay insultos directos. Se recomendaría moderar o revisar." };
+    return { klass: "warn", title: "Agresion verbal", body: "Hay insultos directos. Se recomendaria moderar o revisar." };
   }
 
-  return { klass: "safe", title: "Sin riesgo fuerte", body: "Parece más desacuerdo que ataque." };
+  return { klass: "safe", title: "Sin riesgo fuerte", body: "Parece mas desacuerdo que ataque." };
 }
 
 function renderPhonePicker(activeId) {
@@ -365,7 +380,7 @@ function wireUI() {
   const input = document.getElementById("text-input");
   document.getElementById("analyze-btn").addEventListener("click", () => renderAnalysis(input.value));
   document.getElementById("sample-btn").addEventListener("click", () => {
-    input.value = "Pinches indios, no merecen derechos y deberían expulsarlos.";
+    input.value = "Pinches indios, no merecen derechos y deberian expulsarlos.";
     renderAnalysis(input.value);
   });
   document.getElementById("soft-btn").addEventListener("click", () => {
@@ -374,9 +389,14 @@ function wireUI() {
   });
 }
 
-renderKeywords();
-renderAnalysis("");
-renderPhoneChat(phoneChats[0].id);
-renderTweets(sampleTweets);
-wireTabs();
-wireUI();
+async function boot() {
+  await loadDatasetTweets();
+  renderKeywords();
+  renderAnalysis("");
+  renderPhoneChat(phoneChats[0].id);
+  renderTweets(datasetTweets);
+  wireTabs();
+  wireUI();
+}
+
+boot();

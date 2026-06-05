@@ -1,0 +1,42 @@
+[
+  {
+    "user": "dataset_demo_01",
+    "handle": "@corpus",
+    "text": "No estoy de acuerdo con la propuesta, pero podemos debatirla sin atacar a nadie."
+  },
+  {
+    "user": "dataset_demo_02",
+    "handle": "@corpus",
+    "text": "Esa gente no merece derechos y deberian expulsarlos del pais."
+  },
+  {
+    "user": "dataset_demo_03",
+    "handle": "@corpus",
+    "text": "Los refugiados reciben ayuda y eso deberia discutirse con datos, no con insultos."
+  },
+  {
+    "user": "dataset_demo_04",
+    "handle": "@corpus",
+    "text": "Todos esos inmigrantes son una plaga y habria que echarlos."
+  },
+  {
+    "user": "dataset_demo_05",
+    "handle": "@corpus",
+    "text": "La pelicula estuvo malisima y sali enojado del cine."
+  },
+  {
+    "user": "dataset_demo_06",
+    "handle": "@corpus",
+    "text": "No quiero ver negros en mi colonia."
+  },
+  {
+    "user": "dataset_demo_07",
+    "handle": "@corpus",
+    "text": "Criticar una politica publica no equivale a atacar a una comunidad."
+  },
+  {
+    "user": "dataset_demo_08",
+    "handle": "@corpus",
+    "text": "Pinches indios, nunca aprenden."
+  }
+]
